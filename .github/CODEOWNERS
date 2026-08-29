@@ -1,6 +1,6 @@
 # UI component library ownership
-*          @memohai/web
-/.github/  @memohai/maintainers
+*          @felinics/web
+/.github/  @felinics/maintainers
 
 # Machine-maintained dependency lock intentionally has no code owner.
 /pnpm-lock.yaml

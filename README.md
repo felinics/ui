@@ -21,7 +21,7 @@ workspace resolves it by path with zero build/publish step.
 ## Consuming as a submodule
 
 ```bash
-git submodule add https://github.com/memohai/ui packages/ui
+git submodule add https://github.com/felinics/ui packages/ui
 ```
 
 The mount point **must** be `packages/ui`: all internal path references
