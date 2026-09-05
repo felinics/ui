@@ -8,6 +8,7 @@
        pressed fill aligns with the card edge below instead of hanging into
        the outer gutter. px-4 keeps the chevron and label comfortably inset. -->
   <Button
+    data-settings-detail-back
     variant="ghost"
     :class="buttonClass"
     @click="emit('click')"
