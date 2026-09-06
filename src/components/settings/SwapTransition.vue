@@ -82,6 +82,7 @@ function onBeforeEnter() {
        by the ancestor scroll area. -->
   <div
     ref="rootEl"
+    data-view-swap
     class="relative overflow-x-clip"
   >
     <Transition
