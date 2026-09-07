@@ -102,7 +102,7 @@ function applyPreset(preset: DateRangePreset) {
             v-for="preset in presets"
             :key="preset.label"
             type="button"
-            class="rounded-menu px-2.5 py-1.5 text-left text-control transition-colors hover:bg-[color:var(--ui-hover)] data-[active=true]:bg-[color:var(--ui-selected)] data-[active=true]:font-medium"
+            class="cursor-pointer rounded-menu px-2.5 py-1.5 text-left text-control transition-colors hover:bg-[color:var(--ui-hover)] data-[active=true]:bg-[color:var(--ui-selected)] data-[active=true]:font-medium"
             :data-active="activePreset?.label === preset.label ? 'true' : undefined"
             @click="applyPreset(preset)"
           >

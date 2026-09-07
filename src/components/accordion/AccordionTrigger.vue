@@ -18,7 +18,7 @@ const forwarded = useForwardProps(delegatedProps)
       data-slot="accordion-trigger"
       v-bind="forwarded"
       :class="cn(
-        'flex flex-1 items-center justify-between gap-2 py-3.5 text-label font-medium outline-none transition-colors hover:underline disabled:pointer-events-none disabled:opacity-40 [&[data-state=open]>svg]:rotate-180',
+        'flex flex-1 cursor-pointer items-center justify-between gap-2 py-3.5 text-label font-medium outline-none transition-colors hover:underline disabled:pointer-events-none disabled:opacity-40 [&[data-state=open]>svg]:rotate-180',
         props.class,
       )"
     >

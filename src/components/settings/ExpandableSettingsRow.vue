@@ -9,7 +9,7 @@
   <div class="mx-4 border-b border-border py-3 last:border-b-0">
     <button
       type="button"
-      class="flex min-h-[3.75rem] w-full items-center py-0 text-left"
+      class="flex min-h-[3.75rem] w-full cursor-pointer items-center py-0 text-left"
       :aria-expanded="open"
       @click="open = !open"
     >

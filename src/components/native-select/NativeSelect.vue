@@ -45,7 +45,7 @@ const sizeClass = computed(() => ({
       data-slot="native-select"
       :data-size="props.size"
       :class="cn(
-        'selection:bg-foreground selection:text-background w-full min-w-0 appearance-none rounded-md py-2 pr-9 tracking-[0.01em] outline-none disabled:pointer-events-none disabled:cursor-not-allowed',
+        'selection:bg-foreground selection:text-background w-full min-w-0 cursor-pointer appearance-none rounded-md py-2 pr-9 tracking-[0.01em] outline-none disabled:pointer-events-none disabled:cursor-not-allowed',
         sizeClass,
         props.class,
       )"

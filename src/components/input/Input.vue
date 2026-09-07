@@ -28,9 +28,9 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 })
 
 const sizeClass = computed(() => ({
-  sm: 'h-8 px-2.5 text-body',
-  default: 'h-9 px-3 text-label',
-  lg: 'h-10 px-3.5 text-control',
+  sm: 'h-8 px-2.5',
+  default: 'h-9 px-3',
+  lg: 'h-9.5 px-3.5',
 }[props.size]))
 </script>
 
@@ -41,7 +41,7 @@ const sizeClass = computed(() => ({
     :data-size="props.size"
     :data-emphasis="props.emphasis && props.emphasis !== 'solid' ? props.emphasis : undefined"
     :class="cn(
-      'w-full min-w-0 rounded-md tracking-[0.01em] py-2 text-foreground',
+      'w-full min-w-0 rounded-md tracking-[0.01em] py-2 text-control font-medium text-foreground',
       sizeClass,
       'outline-none',
       '[&:read-only:not(:disabled)]:bg-muted [&:read-only:not(:disabled)]:text-muted-foreground [&:read-only:not(:disabled)]:cursor-not-allowed',

@@ -5,22 +5,18 @@
 // Select had already moved to the tokenised menu language. Component-specific bits
 // (reka size/origin vars, indicator padding, inset) stay inline in each component.
 
-// Floating panel chrome: tokenised hairline + dropdown shadow + shell radius, plus
-// the base open/close transition — fade only, no zoom/scale (a panel that grows out
-// of nothing reads as a generic popover, not a menu). Kept very short (duration-75)
-// so it feels instant. The directional slide is NOT here: it lives in menuSlideClass
-// and is opt-in, because only trigger-anchored menus should drift in from a side —
-// a ContextMenu opens AT the cursor and must just fade. The border-color MUST be a
-// utility — an @layer components rule would silently lose to Tailwind's border
-// utility — so it is pinned here as border-[color:var(--border-menu)]. The explicit
-// `color:` hint is required: in Tailwind v4 a bare border-[var(--x)] is ambiguous
-// between width and color, so we type it the same way we do bg-[color:var(...)].
-// Size/position vars (--reka-*-available-height, trigger-width, transform-origin)
-// are reka-specific and appended inline by each Content wrapper.
+// Floating panel chrome and base fade. Cursor-positioned context menus keep this
+// fade; trigger-anchored panels add menuAnchoredMotionClass below.
+// Keyframes own motion, so geometry updates must never inherit a CSS transition.
 export const menuContentClass
   = 'bg-popover text-popover-foreground border border-[color:var(--border-menu)] rounded-menu-shell shadow-[var(--shadow-dropdown)] z-(--z-overlay) overflow-x-hidden overflow-y-auto '
     + 'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 '
-    + 'duration-75'
+    + 'duration-75 transition-none'
+
+// Shared trigger-anchored motion. Content wrappers supply their Reka transform
+// origin; Presence keeps the closed panel mounted through its exit animation.
+export const menuAnchoredMotionClass
+  = 'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-100 data-[state=closed]:duration-120 transition-none motion-reduce:animate-none'
 
 // Opt-in directional slide: a 1-unit drift in *from the trigger side*. Add it to
 // trigger-anchored surfaces (Dropdown/Select content, every sub-content) so the
@@ -29,10 +25,10 @@ export const menuContentClass
 export const menuSlideClass
   = 'data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1'
 
-// Inner padding/gap for a menu panel: p-1.5 frame, gap-0.5 rows. Select puts
+// Inner padding/gap for a menu panel: 4px frame, gap-0.5 rows. Select puts
 // this on its SelectViewport;
 // flatter menus put it straight on the content box.
-export const menuViewportClass = 'flex flex-col gap-0.5 p-1.5'
+export const menuViewportClass = 'flex flex-col gap-0.5 p-(--menu-frame-spacing)'
 
 // Chrome-only subset of menuContentClass, for the inner panel div of a menu host
 // (Popover with `menu`). The host carries the overlay-tier z-index (--z-overlay)
@@ -46,12 +42,13 @@ export const menuChromeClass
 // rows are absolutely positioned (so it can't take menuViewportClass's
 // `flex flex-col gap-0.5`). Inter-row spacing comes from the virtualizer's `gap`
 // option, not a wrapper. `scroll-my-1` keeps keyboard-scrolled rows off the edge.
-export const virtualListboxClass = 'max-h-64 scroll-my-1 overflow-y-auto p-1.5'
+/** @deprecated Use MenuScrollArea with layout="virtual" and its viewportElement. */
+export const virtualListboxClass = 'max-h-64 scroll-my-1 overflow-y-auto p-(--menu-frame-spacing)'
 
 // How far to shift a menu left (negative alignOffset) so its first row's TEXT
 // lands under the trigger's TEXT — not the menu box edge under the trigger edge.
 // This is a geometric consequence of the shared insets, not a magic number:
-//   menu text from its edge = border(1) + menuViewportClass p-1.5(6) + menuItemClass px-2.5(10) = 17
+//   menu text from its edge = border(1) + menuViewportClass frame(4) + menuItemClass px-3(12) = 17
 //   trigger text from its edge = selectTriggerClass px-3 = 12
 //   delta = 17 - 12 = 5 → shift the menu left by 5px so the two text columns line up.
 // Applied by any menu host anchored to a selectTrigger (SelectContent, and the
@@ -61,7 +58,7 @@ export const menuAlignOffset = -5
 
 // Search field header inside a menu host (SearchableSelectPopover, ModelOptions):
 // a 40px row with a bottom hairline. The input's px-4 (16) lines its text up with
-// the row text (border(1) + viewport p-1.5(6) + item px-2.5(10) = 17 — the 1px is
+// the row text (border(1) + viewport frame(4) + item px-3(12) = 17 — the 1px is
 // the chrome border the search row sits inside, so both land at 17 from the panel
 // edge). Shared so the two searchable surfaces don't each hand-write the header.
 export const menuSearchHeaderClass = 'flex h-10 shrink-0 items-center gap-2 border-b border-border/40 px-4'
@@ -72,14 +69,14 @@ export const menuSearchHeaderClass = 'flex h-10 shrink-0 items-center gap-2 bord
 export const menuSearchInputClass = 'flex h-full w-full bg-transparent text-control [@media(pointer:coarse)]:text-title outline-hidden placeholder:text-muted-foreground'
 
 // One menu row: layout + roving-focus highlight. Geometry is pinned to the
-// shared row contract: px-2.5 / py-1.5 / text-control (14px) / rounded-menu
+// shared row contract: px-3 / py-2 / text-control (14px) / rounded-menu
 // (8px) — so every menu shares the exact same row height, text size and inset.
 // The highlight is reka's [data-highlighted] (the reka/Radix equivalent of shadcn's
 // focus:bg-accent), so it simply follows the pointer/keyboard. The selected value is
 // shown by an indicator (check / dot), never by the row background. Components only
 // override the right gutter for an indicator (pr-8) or the left for an inset (pl-8).
 export const menuItemClass
-  = 'relative flex w-full cursor-default items-center gap-2 rounded-menu px-2.5 py-1.5 text-control outline-hidden select-none transition-colors duration-[60ms] data-[highlighted]:bg-[color:var(--ui-selected)] data-[disabled]:pointer-events-none data-[disabled]:opacity-40 [&_svg:not([class*=text-])]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
+  = 'menu-item relative flex w-full cursor-default items-center gap-2 rounded-menu px-3 py-2 text-control leading-(--text-label--line-height) outline-hidden select-none transition-colors duration-[60ms] data-[highlighted]:bg-[color:var(--ui-selected)] data-[disabled]:pointer-events-none data-[disabled]:opacity-40 [&_svg:not([class*=text-])]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
 
 // Full-width hairline divider between menu rows — item-width (no negative margin),
 // dimmed so it separates without competing with the rows.
@@ -96,3 +93,6 @@ export const menuSeparatorClass = 'bg-border/60 pointer-events-none my-1 h-px'
 // sitting slightly RIGHT of the row text; trimming 2px pulls its left edge back so
 // the heading and the row labels line up to the eye.
 export const menuLabelClass = 'text-muted-foreground cursor-default pr-2.5 pl-2 py-1 text-body font-medium select-none'
+
+// Short labels retain a comfortable menu width; narrow screens may shrink it.
+export const menuWidthClass = 'min-w-[min(var(--menu-min-width),calc(100vw-1rem))]'

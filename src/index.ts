@@ -67,3 +67,6 @@ export * from './components/textarea/index'
 export * from './components/time-input/index'
 export * from './components/toggle/index'
 export * from './components/tooltip/index'
+
+
+export * from './components/menu-scroll-area'

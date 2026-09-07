@@ -25,15 +25,14 @@ const forwardedProps = useForwardProps(delegatedProps)
     v-bind="forwardedProps"
     :class="
       cn(
-        // Shared menu row (lib/menu.ts). Right-side check ⇒ pr-8.
         menuItemClass,
-        'pr-8',
+        'pr-9',
         '*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2',
         props.class,
       )
     "
   >
-    <span class="absolute right-2 flex size-3.5 items-center justify-center">
+    <span class="absolute right-3 flex size-3.5 items-center justify-center">
       <SelectItemIndicator>
         <slot name="indicator-icon">
           <Check class="size-4" />
@@ -41,7 +40,7 @@ const forwardedProps = useForwardProps(delegatedProps)
       </SelectItemIndicator>
     </span>
 
-    <SelectItemText>
+    <SelectItemText data-slot="select-item-text">
       <slot />
     </SelectItemText>
   </SelectItem>

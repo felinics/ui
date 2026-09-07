@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Skeleton } from '../skeleton'
 import SettingsBackButton from './BackButton.vue'
 import SettingsShell from './SettingsShell.vue'
+import SettingsSection from './SettingsSection.vue'
 import { settingsWidthClass, type SettingsWidth } from './width'
 
 // DetailPane — the in-page detail surface: a back row on the content's rails,
@@ -52,26 +53,28 @@ const widthClass = computed(() => settingsWidthClass(props.width))
       data-testid="detail-pane-skeleton"
     >
       <div class="space-y-6">
-        <section class="flex items-center gap-3 rounded-menu-shell border border-border bg-card px-4 py-3">
-          <!-- Real header uses size-9 rounded-full avatar; force full round so the
+        <SettingsSection>
+          <div class="flex items-center gap-3 px-4 py-3">
+            <!-- Real header uses size-9 rounded-full avatar; force full round so the
                Skeleton base rounded-lg cannot leave a square chip. -->
-          <Skeleton class="size-9 shrink-0 !rounded-full" />
-          <div class="min-w-0 flex-1">
-            <Skeleton class="h-4 w-36 max-w-full !rounded-md" />
-          </div>
-          <div class="ml-auto flex shrink-0 items-center gap-2">
-            <!-- icon-sm trash affordance — use solid Tailwind radius tokens.
+            <Skeleton class="size-9 shrink-0 !rounded-full" />
+            <div class="min-w-0 flex-1">
+              <Skeleton class="h-4 w-36 max-w-full !rounded-md" />
+            </div>
+            <div class="ml-auto flex shrink-0 items-center gap-2">
+              <!-- icon-sm trash affordance — use solid Tailwind radius tokens.
                  Arbitrary rounded-[var(--radius-control)] was not applying, so
                  the block rendered as a sharp square. -->
-            <Skeleton class="size-8 shrink-0 !rounded-md" />
-            <!-- Switch track (h-5 w-9 rounded-full), not a square block -->
-            <Skeleton class="h-5 w-9 shrink-0 !rounded-full" />
+              <Skeleton class="size-8 shrink-0 !rounded-md" />
+              <!-- Switch track (h-5 w-9 rounded-full), not a square block -->
+              <Skeleton class="h-5 w-9 shrink-0 !rounded-full" />
+            </div>
           </div>
-        </section>
+        </SettingsSection>
 
         <!-- Form card: SettingsRow geometry (mx-4 / py-3.5 / inset hairlines) +
              h-9 field controls matching real Input / Select height. -->
-        <div class="overflow-hidden rounded-menu-shell border border-border bg-card">
+        <SettingsSection>
           <div
             v-for="i in 4"
             :key="i"
@@ -80,7 +83,7 @@ const widthClass = computed(() => settingsWidthClass(props.width))
             <Skeleton class="h-4 w-24 shrink-0 !rounded-md" />
             <Skeleton class="h-9 w-80 max-w-[55%] !rounded-md" />
           </div>
-        </div>
+        </SettingsSection>
       </div>
     </SettingsShell>
     <slot v-else />

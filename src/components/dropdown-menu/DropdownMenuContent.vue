@@ -7,7 +7,8 @@ import {
   DropdownMenuPortal,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { menuContentClass, menuSlideClass, menuViewportClass } from '#/lib/menu'
+import { menuWidthClass, menuContentClass, menuAnchoredMotionClass } from '#/lib/menu'
+import MenuScrollArea from '../menu-scroll-area/MenuScrollArea.vue'
 import { cn } from '#/lib/utils'
 
 defineOptions({
@@ -33,14 +34,17 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       data-slot="dropdown-menu-content"
       v-bind="{ ...$attrs, ...forwarded }"
       :class="cn(
+        menuWidthClass,
         menuContentClass,
-        menuSlideClass,
-        menuViewportClass,
-        'max-h-(--reka-dropdown-menu-content-available-height) min-w-[8rem] origin-(--reka-dropdown-menu-content-transform-origin)',
+        menuAnchoredMotionClass,
+        'flex min-h-0 flex-col overflow-hidden',
+        'max-h-(--reka-dropdown-menu-content-available-height)  origin-(--reka-dropdown-menu-content-transform-origin)',
         props.class
       )"
     >
-      <slot />
+      <MenuScrollArea>
+        <slot />
+      </MenuScrollArea>
     </DropdownMenuContent>
   </DropdownMenuPortal>
 </template>

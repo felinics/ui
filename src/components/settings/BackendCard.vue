@@ -17,7 +17,7 @@ withDefaults(defineProps<{
 })
 
 /* ui-allow-alpha: hover:bg-accent/30 — pinned owner value, lifted verbatim. */
-const cardClass = 'group/card flex items-center gap-3 rounded-menu-shell border border-border bg-card p-3.5 text-left transition-colors hover:bg-accent/30 dark:hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring' /* ui-allow-alpha */
+const cardClass = 'group/card flex cursor-pointer items-center gap-3 rounded-menu-shell border border-border bg-card p-3.5 text-left transition-colors hover:bg-accent/30 dark:hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring' /* ui-allow-alpha */
 const trailingIconClass = 'size-4 shrink-0 text-muted-foreground/60' /* ui-allow-alpha: pinned owner value, lifted verbatim. */
 </script>
 

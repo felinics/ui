@@ -103,6 +103,38 @@ spec has `usage`).
 - **A spec opts into the matrix** by declaring `matrix: { rows, cols }` with
   control keys — only axes a reviewer actually scans (Button: variant × size).
 
+## Examples pages — the example IS the page
+
+`pages/examples/` holds whole-page specimens of classic product surfaces
+(a settings page, …) — the surfaces every product has, where library-wide
+passes (cursor, motion, width) are judged on a real interface instead of
+single-component playgrounds. They are a third page kind beside component
+pages and foundation pages, with their own law:
+
+- **No doc frame.** The example fills the content area directly — its own
+  `PageShell` IS the page. Never wrap it in a documentation spine, a
+  `STAGE_FRAME_CLASS` frame, or a `CanvasStage`: the point is to feel the
+  components in a real surface, and a stage would turn them back into
+  boxed specimens.
+- **Owners only, stricter than anywhere else.** An example page is the
+  strongest copy-precedent surface in the repo — compose it exclusively
+  from owner vocabulary (`PageShell` / `SettingsSection` / `SettingsRow` /
+  the controls themselves). If a shape the page needs has no owner, that
+  is a vocabulary gap to legislate, not a class to hand-write.
+- **No width pinning, no state seeding beyond defaults.** Controls render
+  at their library defaults (`Select` at `w-fit`, `Input` at `w-full`, …)
+  so the page exposes true default behavior in real rows. If a row looks
+  wrong, the fix belongs in the library, not in a class on the page.
+- **Overlays uncontrolled, state local** (per the overlay invariants
+  below): each `Select`/`Dialog` owns its open state; page state is plain
+  refs. No fake backends, no demo data plumbing.
+- **Bilingual, generic copy.** All strings go through `tt()` and read as
+  "any product's" copy — an example names no concrete product and teaches
+  no Memoh-specific business wording.
+
+Register each page in `registry.ts` under the `examples` nav group via the
+`example()` helper (id prefix `examples/`).
+
 ## Overlay invariants (dead-locked three times — do not re-try)
 
 - **Overlay specs render UNCONTROLLED — `interactive: true`, NO `open`

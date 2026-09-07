@@ -4,7 +4,7 @@ import type { HTMLAttributes } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import { ListboxGroup, ListboxGroupLabel, useId } from 'reka-ui'
 import { computed, onMounted, onUnmounted } from 'vue'
-import { menuLabelClass } from '#/lib/menu'
+import { menuLabelClass, menuViewportClass } from '#/lib/menu'
 import { cn } from '#/lib/utils'
 import { provideCommandGroupContext, useCommand } from '.'
 
@@ -35,7 +35,7 @@ onUnmounted(() => {
     v-bind="delegatedProps"
     :id="id"
     data-slot="command-group"
-    :class="cn('text-foreground flex flex-col gap-0.5 overflow-hidden p-1.5', props.class)"
+    :class="cn(menuViewportClass, 'text-foreground overflow-hidden', props.class)"
     :hidden="isRender ? undefined : true"
   >
     <ListboxGroupLabel

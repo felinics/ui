@@ -24,9 +24,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   <DropdownMenuRadioItem
     data-slot="dropdown-menu-radio-item"
     v-bind="forwarded"
-    :class="cn(menuItemClass, 'pr-8', props.class)"
+    :class="cn(menuItemClass, 'pr-9', props.class)"
   >
-    <span class="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
+    <span class="pointer-events-none absolute right-3 flex size-3.5 items-center justify-center">
       <DropdownMenuItemIndicator>
         <slot name="indicator-icon">
           <Circle class="size-2 fill-current" />

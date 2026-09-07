@@ -8,7 +8,7 @@ import {
   useForwardPropsEmits,
 } from 'reka-ui'
 import { computed } from 'vue'
-import { menuSlideClass } from '#/lib/menu'
+import { menuAnchoredMotionClass } from '#/lib/menu'
 import { cn } from '#/lib/utils'
 
 defineOptions({
@@ -18,21 +18,9 @@ defineOptions({
 const props = withDefaults(
   defineProps<PopoverContentProps & {
     class?: HTMLAttributes['class']
-    // `menu` turns this Popover into a host for a menu surface (Combobox = Popover +
-    // Command). It drops the generic popover chrome (border/shadow/padding/width) and
-    // the zoom motion, and instead plays the menu family's fade + 1-unit directional
-    // slide at duration-75 — identical to SelectContent — so an anchored picker reads
-    // the same whether it's a Select or a Combobox. The inner surface (Command) brings
-    // its own border/shadow/radius, so this wrapper stays transparent and unpadded.
+    // Menu hosts delegate their chrome to the inner list while retaining the
+    // shared anchored-menu motion. Explicit zoom panels keep their own motion.
     menu?: boolean
-    // Entrance motion for a CHROMED popover (ignored when `menu` is set — a host
-    // always uses menu motion):
-    //   'menu' (default) — the menu-family feel: fade + 1-unit slide at duration-75,
-    //                      NO zoom. Same motion as DropdownMenu/Select/HoverCard, so an
-    //                      anchored popover reads as part of the one menu language.
-    //   'zoom'           — the older generic-popover feel: fade + 2-unit slide +
-    //                      zoom-95. Opt-in only, for a panel that should read as
-    //                      growing out of nothing rather than as a menu.
     motion?: 'zoom' | 'menu'
   }>(),
   {
@@ -58,10 +46,7 @@ const chromeClass = computed(() => props.menu
 
 // Menu motion when hosting a menu surface OR when explicitly opted in via motion.
 const motionClass = computed(() => (props.menu || props.motion === 'menu')
-  ? cn(
-    'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-75',
-    menuSlideClass,
-  )
+  ? menuAnchoredMotionClass
   : 'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2')
 
 // Menu HOST keeps its original resting directional offset (1 unit off the trigger
