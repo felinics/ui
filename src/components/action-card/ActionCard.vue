@@ -68,6 +68,8 @@ const props = withDefaults(defineProps<PrimitiveProps & {
   /** Optional one-line supporting text (truncates — never wraps). Grows the row
    *  past the 48px single-line height. The #description slot overrides. */
   description?: string
+  /** Keep a boundary when nested inside another card-colored surface. */
+  bordered?: boolean
   class?: HTMLAttributes['class']
 }>(), {
   as: 'button',
@@ -78,11 +80,13 @@ const props = withDefaults(defineProps<PrimitiveProps & {
 <template>
   <Primitive
     data-slot="action-card"
+    :data-bordered="bordered || undefined"
     :as="as"
     :as-child="asChild"
     :class="cn(
       'group/action relative isolate flex w-full min-h-[3rem] items-center gap-3 border bg-card px-4 py-3.5 text-left',
       'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
+      !bordered && 'dark:border-0',
       props.class,
     )"
   >

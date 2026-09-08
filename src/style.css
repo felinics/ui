@@ -373,6 +373,16 @@
     position: relative;
     isolation: isolate;
   }
+  /* Toolbar actions stay secondary at rest, retaining the ghost hover surface.
+     Color belongs to the button so nested glyphs and labels change together. */
+  [data-button][data-variant="ghost"][data-tone="muted"]:is(:focus-visible, :active, [data-state="open"], [aria-expanded="true"]):not(:disabled) {
+    color: var(--foreground) !important;
+  }
+  @media (hover: hover) {
+    [data-button][data-variant="ghost"][data-tone="muted"]:hover:not(:disabled) {
+      color: var(--foreground) !important;
+    }
+  }
   [data-button][data-variant="ghost"]::before {
     content: "";
     position: absolute;
@@ -626,6 +636,10 @@
     border-radius: var(--radius-menu-shell);
     background-color: transparent;
     transition: background-color 15ms ease;
+  }
+  /* Borderless dark cards keep the interaction overlay inside their own box. */
+  .dark [data-slot="action-card"]:not([data-bordered])::before {
+    inset: 0;
   }
   :is(button, a)[data-slot="action-card"]:hover::before {
     background-color: var(--action-card-hover);
@@ -1067,6 +1081,8 @@
   --select-fade-midpoint: rgb(0 0 0 / 0.4); /* Mask alpha, independent of theme. */
   /* Nine 34px rows and eight 2px gaps, scaling with the root font. */
   --menu-frame-spacing: 0.25rem;
+  --menu-separator-color: var(--border-soft);
+  --menu-row-gap: 0.125rem;
   --menu-leading-icon-size: 1rem;
   --menu-min-width: 10rem;
   --menu-item-leading-size: calc(var(--text-label--line-height) + 1rem);
@@ -1274,7 +1290,7 @@
   --border-menu-elevated: transparent;
   --shadow-hairline: inset 0 0 0 1px var(--border-hairline);
   --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.08);
-  --shadow-dropdown: 0 1px 2px 0 oklch(0 0 0 / 0.04), 0 6px 18px -6px oklch(0 0 0 / 0.08);
+  --shadow-dropdown: 0 1px 2px 0 oklch(0 0 0 / 0.03), 0 4px 12px -6px oklch(0 0 0 / 0.05);
   /* Elevation for any surface floating in the MODAL layer over a scrim — the card
      Dialog / Sheet panels AND the CommandDialog menu palette all share it so modal
      depth never fragments (was: per-component shadow-2xl / shadow-lg / a bespoke
@@ -2585,4 +2601,13 @@
   .menu-item [data-menu-item-hint] { opacity: 0; }
   .menu-item[data-highlighted] [data-menu-item-hint],
   .menu-item:focus-visible [data-menu-item-hint] { opacity: 1; }
+}
+
+@layer utilities {
+  /* The flex gap already contributes to separator clearance. Match the outer
+     frame rather than adding a second full frame above and below the line. */
+  .menu-viewport > [role="separator"] {
+    margin-block: max(0px, calc(var(--menu-frame-spacing) - var(--menu-row-gap)));
+    margin-inline: calc(var(--menu-frame-spacing) * 2);
+  }
 }

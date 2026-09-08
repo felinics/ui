@@ -28,7 +28,7 @@ export const menuSlideClass
 // Inner padding/gap for a menu panel: 4px frame, gap-0.5 rows. Select puts
 // this on its SelectViewport;
 // flatter menus put it straight on the content box.
-export const menuViewportClass = 'flex flex-col gap-0.5 p-(--menu-frame-spacing)'
+export const menuViewportClass = 'menu-viewport flex flex-col gap-(--menu-row-gap) p-(--menu-frame-spacing)'
 
 // Chrome-only subset of menuContentClass, for the inner panel div of a menu host
 // (Popover with `menu`). The host carries the overlay-tier z-index (--z-overlay)
@@ -78,9 +78,8 @@ export const menuSearchInputClass = 'flex h-full w-full bg-transparent text-cont
 export const menuItemClass
   = 'menu-item relative flex w-full cursor-default items-center gap-2 rounded-menu px-3 py-2 text-control leading-(--text-label--line-height) outline-hidden select-none transition-colors duration-[60ms] data-[highlighted]:bg-[color:var(--ui-selected)] data-[disabled]:pointer-events-none data-[disabled]:opacity-40 [&_svg:not([class*=text-])]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
 
-// Full-width hairline divider between menu rows — item-width (no negative margin),
-// dimmed so it separates without competing with the rows.
-export const menuSeparatorClass = 'bg-border/60 pointer-events-none my-1 h-px'
+// Quiet hairline divider; the shared menu viewport owns its inset and gap clearance.
+export const menuSeparatorClass = 'bg-(--menu-separator-color) pointer-events-none my-1 h-px'
 
 // Section heading inside a menu — a quiet, muted group marker. One notch
 // smaller/dimmer than rows (text-body, medium) and short (py-1) so it reads as a
