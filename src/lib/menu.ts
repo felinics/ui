@@ -76,7 +76,7 @@ export const menuSearchInputClass = 'flex h-full w-full bg-transparent text-cont
 // shown by an indicator (check / dot), never by the row background. Components only
 // override the right gutter for an indicator (pr-8) or the left for an inset (pl-8).
 export const menuItemClass
-  = 'menu-item relative flex w-full cursor-default items-center gap-2 rounded-menu px-3 py-2 text-control leading-(--text-label--line-height) outline-hidden select-none transition-colors duration-[60ms] data-[highlighted]:bg-[color:var(--ui-selected)] data-[disabled]:pointer-events-none data-[disabled]:opacity-40 [&_svg:not([class*=text-])]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
+  = 'menu-item relative flex w-full cursor-default items-center gap-2 rounded-menu px-3 py-2 text-control leading-(--text-label--line-height) outline-hidden select-none transition-colors duration-[60ms] data-[highlighted]:bg-[color:var(--ui-selected)] data-[disabled]:pointer-events-none data-[disabled]:opacity-40 [&_svg:not([class*=text-])]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
 
 // Full-width hairline divider between menu rows — item-width (no negative margin),
 // dimmed so it separates without competing with the rows.
@@ -96,3 +96,6 @@ export const menuLabelClass = 'text-muted-foreground cursor-default pr-2.5 pl-2 
 
 // Short labels retain a comfortable menu width; narrow screens may shrink it.
 export const menuWidthClass = 'min-w-[min(var(--menu-min-width),calc(100vw-1rem))]'
+
+// Shared stroke for submenu direction hints.
+export const menuIndicatorStrokeWidth = 1.75
