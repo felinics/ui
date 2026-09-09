@@ -445,6 +445,11 @@ recurring failures to avoid:
     populated form has — the section card, or a solid-`border` framed block for a standalone grid
     — never a dashed box, and never bare floating muted text. (This refines the older "outermost
     Empty earns a dashed border" guidance: it does not — outermost empties are solid-framed.)
+    **The frame is now a prop, so a page never writes either one:** `<Empty>` defaults to
+    `variant="framed"` (the solid hairline at the card radius, for a standalone empty), and
+    `variant="bare"` drops it for an Empty nested in a `SettingsSection` / `Card` that already
+    draws the edge. If you are reaching for a `border`/`border-dashed` class on an `Empty`, the
+    answer is one of those two rungs.
   - **No decorative icon.** An `EmptyMedia variant="icon"` glyph tile, or any big lucide glyph
     stacked above the title, is banned: it is both card-in-card and the icon-abuse below. Just
     title + description + action. (An action *button* keeps its own small action glyph — that is

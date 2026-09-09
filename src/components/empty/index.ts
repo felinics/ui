@@ -8,6 +8,14 @@ export { default as EmptyHeader } from './EmptyHeader.vue'
 export { default as EmptyMedia } from './EmptyMedia.vue'
 export { default as EmptyTitle } from './EmptyTitle.vue'
 
+// Empty.variant is a plain string-literal prop in Empty.vue (no cva — the two
+// rungs are one class each), so the axis keys live here next to the re-exports
+// as the single source the showcase spec consumes (tabsListVariantKeys
+// precedent).
+export type EmptyVariant = 'framed' | 'bare'
+
+export const emptyVariantKeys = ['framed', 'bare'] as const satisfies readonly EmptyVariant[]
+
 export const emptyMediaVariants = cva(
   'mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {

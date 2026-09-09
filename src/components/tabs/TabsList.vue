@@ -3,7 +3,7 @@ import type { TabsListProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import { TabsList } from 'reka-ui'
-import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, useAttrs } from 'vue'
 import { cn } from '#/lib/utils'
 
 const props = defineProps<TabsListProps & {
@@ -12,10 +12,46 @@ const props = defineProps<TabsListProps & {
   // chrome ported verbatim. Both keep full Tabs semantics + panels — only the
   // skin + indicator differ.
   variant?: 'underline' | 'pill'
+  /** Accessible name for the tablist. Required whenever the tab row is not
+   *  already named by a visible heading — a11y wants every tablist named, and
+   *  a page has no other way to reach the inner element (see below). */
+  label?: string
 }>()
 
+// The root here is a WRAPPER div that exists only to host the sliding
+// indicator; role="tablist" lives on the inner reka TabsList. Default
+// fallthrough would park a caller's `aria-label` on the wrapper, where no
+// screen reader will ever read it — an accessible name that silently does
+// nothing is worse than none, because it also satisfies the audit tool. So
+// attrs are split by hand: aria-* goes to the element that carries the role,
+// everything else (id, style, listeners) stays on the wrapper.
+defineOptions({ inheritAttrs: false })
+
+const attrs = useAttrs()
+
 const variant = computed(() => props.variant ?? 'underline')
-const delegatedProps = reactiveOmit(props, 'class', 'variant')
+const delegatedProps = reactiveOmit(props, 'class', 'variant', 'label')
+
+const ariaAttrs = computed(() => {
+  const picked: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key.startsWith('aria-'))
+      picked[key] = value
+  }
+  // The prop is the discoverable spelling and wins over a raw attr.
+  if (props.label !== undefined)
+    picked['aria-label'] = props.label
+  return picked
+})
+
+const rootAttrs = computed(() => {
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (!key.startsWith('aria-'))
+      rest[key] = value
+  }
+  return rest
+})
 
 // The indicator is MEASURED off the active trigger (same technique as
 // SegmentedControl) so the slide can never mismatch a trigger's footprint.
@@ -143,6 +179,7 @@ const indicatorStyle = computed(() => {
 <template>
   <div
     ref="root"
+    v-bind="rootAttrs"
     :data-variant="variant"
     :class="cn(rootClass, props.class)"
     @pointerdown="onDown"
@@ -158,7 +195,7 @@ const indicatorStyle = computed(() => {
     />
     <TabsList
       data-slot="tabs-list"
-      v-bind="delegatedProps"
+      v-bind="{ ...delegatedProps, ...ariaAttrs }"
       :class="listClass"
     >
       <slot />

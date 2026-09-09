@@ -22,13 +22,30 @@ Resolve references inside either skill relative to its own directory. Hosts
 should point agents to `packages/ui/AGENTS.md`; they do not need to copy,
 forward, symlink, or separately register these skills under `.agents/skills`.
 
-## Enforcement is three layers
+## Enforcement is three layers (plus one narrow fourth)
 
 | Layer | Where | Role |
 |---|---|---|
 | **Tokens** | `src/style.css` (`@theme inline` / `:root` / `.dark`) | the ONLY place raw values live |
 | **This contract** | `packages/ui/AGENTS.md` | the rules + rationale |
-| **Guard** | `scripts/check-ui-contract.mjs` (wired into `mise run lint`) | mechanical block on drift |
+| **Guard** | the HOST repo's `scripts/check-ui-contract.mjs` (wired into `mise run lint`) | mechanical block on drift |
+| **DOM tests** | `src/**/__tests__/*.test.ts` (`pnpm test`) | only for promises the three above CANNOT see |
+
+The guard lives in the **consuming repository**, not here — it scans `packages/ui`
+and `apps/web` together and keeps its ratchet baselines beside itself, so
+`node scripts/check-ui-contract.mjs` does not run from a standalone clone of
+this module. Its rules are still binding on every line written here; run it from
+the host before landing anything, and add new rules there (§ Extending this
+contract).
+
+The fourth layer is **deliberately tiny and must stay that way.** All three
+layers above read SOURCE TEXT, which makes them structurally blind to exactly
+one defect class: a composition that type-checks, whose class strings are all
+legal, but whose RENDERED DOM puts them on the wrong element. `<Button as-child>`
+shipped that bug for its entire life (see § `as-child` below). A test earns its
+place here only when it pins a contract promise about **which element carries
+what** — not to re-check styling the guard already reads, and never as a
+general-purpose component test suite.
 
 ## Compose, don't style — the one principle (locality)
 
@@ -122,6 +139,47 @@ that lacks it keeps re-introducing the same class of bug.
   open" is ONE decision (pure-pointer via `pointer-events:auto`, OR stay-lit via
   `[data-state=open]`) — Select, Dropdown, Popover and ghost triggers must not each pick their
   own, or they read as "fighting" (the recurring TextButton-vs-Select hover mismatch).
+
+## `as-child` — anything you render beside the slot STEALS the merge
+
+A fifth invisible mechanic, and the one that cost the most: reka's `Slot` (what
+`Primitive` renders when `asChild` is true) merges the component's props into
+**the first non-comment child it receives** — then returns the remaining
+children untouched. It does not look for "the caller's element"; it takes
+whatever is first.
+
+**So a component that forwards `asChild` must render `<slot/>` and NOTHING
+else in that branch.** One wrapper span is enough to break it completely: the
+wrapper becomes "first", absorbs the class list and every `data-*` anchor, and
+the caller's `<a>` / `<RouterLink>` renders as bare text inside it. If the
+wrapper is `display: contents` — the usual "layout-transparent" trick — the
+failure is *silent*: the classes are present in the DOM, DevTools shows them
+attached, and none of them produce a box. Nothing type-checks wrong, no class
+string is illegal, and the guard reads source text so it sees nothing.
+
+This is exactly what `<Button as-child>` did from the day its
+`data-button-content` wrapper was introduced: `inline-flex` / `h-9` / `px-4` /
+`rounded-md` all landed on the contents span, and `[data-button]` — the anchor
+EVERY hover/press/focus rule in `style.css` keys off — went with them, taking
+the `::before` fill's positioning ancestor along. `<TextButton as-child>` and
+`<BreadcrumbLink as-child>`, both documented as the way to wrap a RouterLink,
+inherited the same break. Pinned now by `src/components/button/__tests__`.
+
+Corollaries when you build or touch an `asChild`-forwarding component:
+
+- **Two directions, only one is fragile.** `<Trigger as-child><Button/></Trigger>`
+  (a reka trigger wrapping our Button — Pagination, `DialogCloseButton`,
+  NumberField steppers) is fine: the Button component vnode is itself the first
+  child, so it receives the merge and renders normally. The fragile direction is
+  a component's OWN `asChild`, where its template decides what "first" is.
+- **A capability that needs an injected node cannot survive `as-child`** — the
+  caller owns the element, so there is nowhere to put the node. Degrade it
+  explicitly and say so (Button's `loading` falls back to `loadingMode="manual"`
+  and warns in dev), never silently.
+- **Inheritance-chain tricks usually become unnecessary, not broken.** Button's
+  wrapper also forwarded `[gap:inherit]` so a nested `LabelSwap` could read the
+  button's gap; under `as-child` the gap utility is on the caller's element,
+  which IS the parent, so the value arrives directly.
 
 ## Three laws
 
@@ -280,6 +338,92 @@ stashing whole features behind an in-card "Advanced" disclosure, or re-skinning 
 list row (`Item` / the app-layer `BackendCard`) whose meaning is "one of many
 peers", not "one door to somewhere else".
 
+### "Nothing here yet" = `<Empty>`, and its frame is a PROP
+
+An empty state is the SAME page with no rows in it, so it keeps the frame its
+populated form has. Which frame that is depends entirely on where it sits, and
+both placements are documented — so the choice is an enumerated prop, never a
+class a page injects:
+
+- **`variant="framed"` (default)** — the standalone empty. It stands IN FOR the
+  card or grid that appears once data exists, so it draws that surface's frame:
+  one **solid** `border-border` hairline at the Card radius (`rounded-xl`, the
+  § Radius role map's container rung — the empty and the card it replaces must
+  share a corner, or a half-loaded page shows two different rounds).
+- **`variant="bare"`** — nested inside a surface that already frames it (a
+  `SettingsSection`, a `Card`). A second hairline there is card-in-card: two
+  strokes on one visual unit, the § The one rule violation.
+
+**`border-dashed` is not an empty-state look at any rung.** Dashed reads "drop
+zone / add here" and is reserved for the "+ Add another" tile that sits BESIDE
+real items in an already-populated list. And no decorative icon: an
+`EmptyMedia variant="icon"` tile carries its own border, so it is card-in-card
+too (web SKILL § empty states).
+
+(Historical note, because the bug is instructive: this component shipped
+`rounded-lg border-dashed` for its whole life. `border-dashed` sets
+border-*style* only — with no width the edge never rendered, so every standalone
+empty was centered gray text floating in whitespace, and nobody noticed because
+the class string *looked* like it framed something. Adding a bare `border` would
+have "fixed" it into the dashed look the contract bans.)
+
+### Alert vs CalloutBanner — semantic through TEXT vs through SURFACE
+
+Both report a state; they are split by **which layer carries the hue**, and
+mixing them is how a system ends up with two competing looks for one message.
+
+- **`<Alert>`** = a neutral framed message reporting the RESULT of something the
+  surface just did (a connectivity probe, a validation pass). Every variant
+  keeps the same `bg-background` + `border-border` frame; only the title and the
+  icon take the hue — one layer changing in place, § The one rule. Four rungs:
+  `default` / `success` / `warning` / `destructive`. **A result rendered as
+  `default` is an unlabelled result** — success and failure must be
+  distinguishable before the copy is read.
+- **`<CalloutBanner>`** = the tinted, interruptive lifecycle notice with its own
+  action. It owns the soft-token triplet (`--*-soft` fill + `--*-border` edge +
+  colored icon). Do not rebuild that look on an Alert by injecting `bg-*` /
+  `border-*`.
+
+**Token rung, and why it is not symmetric across hues:** `--destructive`
+(L≈0.58) is dark enough to be body text on the page surface; `--success`
+(L≈0.62) and `--warning` (L≈0.72) are icon/fill hues and are not. Their
+readable-text rung is `--*-foreground` — exactly the role that token was minted
+for, and the one `CalloutBanner` already uses. Do not "unify" success/warning
+onto the base hue to match destructive: that trades legibility for a symmetry
+the palette deliberately does not have. (`--*-solid-foreground` is the other
+direction — text ON a filled chip — and never applies to a neutral-framed
+alert.)
+
+### Machine text in a field = `Textarea variant="code"`
+
+A field holding JSON / YAML / a config blob / a prompt template declares that
+through a prop; `class="font-mono"` on a `<Textarea>` is the className red line
+(§ Compose, don't style). `variant` is a content ROLE, not a skin — it currently
+resolves to the mono family plus a tracking reset (the base +0.01em is prose
+tracking for the sans stack; stacking it on a monospace's already-wide advance
+makes columns drift), and it is where future code-surface affordances (tab-size,
+no-wrap) land instead of being re-derived per page. Orthogonal to `size`.
+
+Vocabulary note: `Badge`'s `font: sans | mono` axis is a pure family switch on a
+chip carrying a technical value. Same typeface, different question — do not
+merge the two axes.
+
+### A wrapper must forward `aria-*` to the element that carries the ROLE
+
+When a component wraps the element that owns its ARIA role — because the outer
+node exists for chrome (a sliding indicator, a measurement box) — default Vue
+attribute fallthrough parks the caller's `aria-label` on the WRAPPER, where no
+screen reader will ever read it. That failure is worse than no label: the audit
+tool goes green while the control stays anonymous.
+
+So such a component splits `$attrs` deliberately (`inheritAttrs: false`):
+`aria-*` to the role-bearing inner element, everything else (id, style,
+listeners) to the wrapper — plus a named `label` prop as the discoverable
+spelling. `TabsList` is the reference implementation (its root hosts the
+underline/thumb; `role="tablist"` is on the inner reka list). Applies to any
+future indicator-wrapping component; a page must never have to know the
+component has two nodes.
+
 ## Reference status (new vs legacy)
 
 > Confirm / extend this list with the maintainer before treating anything as gospel.
@@ -291,9 +435,13 @@ peers", not "one door to somewhere else".
   PinInput, InputOTP, TagsInput (mid-refactor — their pre-refactor code is a
   textbook § Dirty patterns exhibit; check it in git, do not copy the in-flight
   state).
-- **Legacy (do NOT use as reference):** Badge, Alert (semantic fills) — and any
-  component not listed as Reference above. When in doubt, ask; do not
-  pattern-match off legacy.
+- **Legacy (do NOT use as reference):** Badge — and any component not listed as
+  Reference above. When in doubt, ask; do not pattern-match off legacy. (Alert
+  came off this list when its variant axis was legislated above: the frame is
+  now neutral in all four rungs and only the text layer carries the hue. Its one
+  remaining wart is `destructive`'s `text-destructive/90` description tint, a
+  hand-written alpha grandfathered by § Alpha policy — the newer rungs
+  deliberately do not copy it.)
 - **`components/sidebar/` (do NOT copy its styling):** the entire directory (23
   files) is an unmigrated shadcn-vue import — it hand-rolls its own button
   chrome and a separate focus-ring vocabulary instead of the Button/field-edge
@@ -302,6 +450,13 @@ peers", not "one door to somewhere else".
   `check-ui-contract.mjs` oklch-leftover rule). Production usage is limited to
   `settings-sidebar` (via `master-detail-sidebar-layout` → `settings-section` /
   `bots/detail.vue`). Copy patterns from the Reference list, not from here.
+  - **`SidebarMenuButton`'s `tooltip` is ONLY effective under
+    `<Sidebar collapsible="icon">`.** It is gated on `state === 'collapsed'`,
+    and under `collapsible="offcanvas"` (the default) a collapsed sidebar is
+    slid off the viewport entirely — there is no visible trigger to hover, so
+    the tooltip can never render. It is suppressed on mobile too (the sidebar
+    is a Sheet there; hover does not exist). Passing one anywhere else is dead
+    copy that reads like shipped a11y text and reaches nobody.
 
 ## Color
 
@@ -785,6 +940,27 @@ pass with `node scripts/check-ui-contract.mjs --write-baseline`.
   static (fades even at the scroll ends); use this. Nest `AutoHeight` INSIDE
   it, never the other way (AutoHeight can't scroll, DialogBody can't clip a
   height tween).
+- **`SheetPanel` / `SheetBody` — the same law, on the other surface.** A form
+  drawer is a header / scrolling body / footer stack, and before these existed
+  every call site reassembled it by hand. The shape it converged on names each
+  missing contract: `sm:max-w-lg` (a width the page had to invent), `gap-0`
+  (undoing the component's own gap), `border-b`/`border-t` injected onto
+  `SheetHeader`/`SheetFooter` (a structural border painted on from outside —
+  dirty pattern 2), `flex-row` to turn the stacked mobile-nav footer into an
+  action row, `w-[calc(100%-1rem)]` (the narrow-screen width, re-derived per
+  page), and `class="contents"` wrappers whose only job was flattening the
+  author's markup back into the flow the shell should have owned. `SheetPanel`
+  owns all of it. Knobs: `width` (`sm`/`md`/`lg`/`xl` — add a rung HERE, never
+  a per-page `sm:max-w-[…]`), `side` (`left`/`right` only — the row grid is a
+  vertical stack, which a top/bottom sheet does not want), `footer` (adds the
+  third row AND its top hairline; a prop rather than slot-sniffing for
+  DialogPanel's reasons, plus a declared-but-empty row would still draw a stray
+  divider). `SheetBody` is the scrolling middle row; unlike `DialogBody` it needs
+  no `-mr-3 pr-3` gutter hack, because the sheet's padding lives on the body
+  itself so the scrollbar already lands on the panel edge. Field rhythm inside
+  stays `FieldGroup`'s job — one owner per concern. A bare `SheetContent` is
+  still right for a single flowing surface (mobile nav) that has nothing to
+  divide.
 - **`DialogViewHeader` — back / title / close on ONE centerline.** For a
   dialog that swaps views (list ↔ drill-in form) or any header where the
   built-in corner close (`top-3`) would sit off the title's centerline. Pair
@@ -822,6 +998,14 @@ rules 5/6/7 run as HARD failures. Tokens added in that pass:
 
 Remaining (non-blocking) TODOs:
 
+- **Rule debt: the guard does not detect `font-*` injection.** "A page does not
+  inject appearance classes into a component" is enforced for `bg-*` /
+  `border-*` / `shadow-*` / raw color / arbitrary radius / text-coupled px /
+  semantic alpha — but `class="font-mono"` (and `font-[NNN]`, already called out
+  in `skills/web/reference.md` as the single most common app-page drift) sails
+  through. `Textarea variant="code"` removes the last legitimate reason to write
+  it in this library; adding the detection is a host-side guard rule, and it
+  needs a ratchet baseline first because `apps/web` has existing hits.
 - Toggle `tint` active uses `--brand` (consider an accent token).
 - Dark-mode accent palette + elevation currently inherit light values.
 - SegmentedControl disabled uses CSS `opacity: 0.5`; the contract says 40 — unify

@@ -1,12 +1,14 @@
 import type { ComponentSpec } from '../lib/spec'
 import { accordionSpec } from './accordion'
 import { actionCardSpec } from './action-card'
+import { alertSpec } from './alert'
 import { badgeSpec } from './badge'
 import { buttonSpec } from './button'
 import { cardSpec } from './card'
 import { checkboxSpec } from './checkbox'
 import { dialogSpec } from './dialog'
 import { dropdownMenuSpec } from './dropdown-menu'
+import { emptySpec } from './empty'
 import { fieldSpec } from './field'
 import { inputSpec } from './input'
 import { inputGroupSpec } from './input-group'
@@ -15,6 +17,7 @@ import { numberFieldSpec } from './number-field'
 import { popoverSpec } from './popover'
 import { segmentedSpec } from './segmented'
 import { selectSpec } from './select'
+import { sheetSpec } from './sheet'
 import { skeletonSpec } from './skeleton'
 import { sonnerSpec } from './sonner'
 import { switchSpec } from './switch'
@@ -47,9 +50,12 @@ export const componentSpecs: ComponentSpec[] = [
   tabsSpec,
   accordionSpec,
   skeletonSpec,
+  emptySpec,
   dialogSpec,
+  sheetSpec,
   popoverSpec,
   dropdownMenuSpec,
   tooltipSpec,
   sonnerSpec,
+  alertSpec,
 ]

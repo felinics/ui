@@ -69,6 +69,18 @@ export const buttonSpec: ComponentSpec = {
       ],
     },
     {
+      name: 'as-child — the link IS the button',
+      nameZh: 'as-child——链接本身就是按钮',
+      note: 'as-child hands the ELEMENT to the caller: the classes and the [data-button] chrome land on the <a> / <RouterLink> itself, so one element both navigates and looks like a button. The built-in loading spinner is unavailable here (the caller owns the element) — pass loading-mode="manual" and render your own.',
+      noteZh: 'as-child 把元素交给调用方:类和 [data-button] 铬件直接落在 <a> / <RouterLink> 上,于是同一个元素既能跳转又长得像按钮。内建 loading spinner 在这里用不了(元素归调用方所有)——传 loading-mode="manual" 自己渲染。',
+      render: () => [
+        h(Button, { asChild: true }, () => h('a', { href: '#' }, ['Open docs', h(ArrowRight)])),
+        h(Button, { asChild: true, variant: 'outline' }, () => h('a', { href: '#' }, 'Back')),
+        h(Button, { asChild: true, variant: 'ghost', size: 'icon' }, () =>
+          h('a', { 'href': '#', 'aria-label': 'Refresh' }, h(RefreshCw))),
+      ],
+    },
+    {
       name: 'Icon buttons',
       nameZh: '图标按钮',
       note: 'Three square sizes for toolbars and chrome. No visible label, so the aria-label is the contract.',
@@ -107,7 +119,8 @@ export const buttonSpec: ComponentSpec = {
 - destructive is a filled red CTA, not a ghost button with red text.
 - "Clickable text with a hover chip" is TextButton (ghost @ size="text"), not a hand-rolled hover on a span.
 - Icon-only buttons must carry an aria-label.
-- loading holds full color and blocks clicks; disabled fades to opacity-40. Busy ≠ disabled.`,
+- loading holds full color and blocks clicks; disabled fades to opacity-40. Busy ≠ disabled.
+- Wrapping a router link: as-child makes the caller's element the button (one element, both jobs). Its one limit is the built-in spinner — under as-child, loading degrades to loading-mode="manual".`,
   usageZh: `用 variant + size 表达意图,永远别手写 class。
 
 - default/primary 是深炭色高强调 CTA——一个界面最多一个。
@@ -115,5 +128,6 @@ export const buttonSpec: ComponentSpec = {
 - destructive 是实心红 CTA,不是红字 ghost。
 - "可点击、带 hover 衬底的文字"是 TextButton(ghost @ size="text"),不是给 span 手写 hover。
 - 纯图标按钮必须带 aria-label。
-- loading 保持全色并屏蔽点击;disabled 降到 opacity-40。忙 ≠ 禁用。`,
+- loading 保持全色并屏蔽点击;disabled 降到 opacity-40。忙 ≠ 禁用。
+- 要包路由链接就用 as-child:调用方的元素直接成为按钮(一个元素兼两职)。唯一的限制是内建 spinner——as-child 下 loading 降级为 loading-mode="manual"。`,
 }
