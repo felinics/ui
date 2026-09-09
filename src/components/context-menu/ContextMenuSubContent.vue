@@ -35,8 +35,7 @@ const { alignOffset, ready } = useSubmenuAlignment(currentElement)
           menuWidthClass,
           menuContentClass,
           menuAnchoredMotionClass,
-          'flex min-h-0 flex-col overflow-hidden max-h-(--reka-context-menu-content-available-height)',
-          ' origin-(--reka-context-menu-content-transform-origin)',
+          'flex min-h-0 flex-col overflow-hidden max-h-(--reka-context-menu-content-available-height) origin-(--reka-context-menu-content-transform-origin)',
           props.class,
         )
       "

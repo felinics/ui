@@ -128,7 +128,7 @@ watch(viewportElement, async (element, _previous, onCleanup) => {
         menuWidthClass,
         menuContentClass,
         !measurementReady && 'invisible animate-none!',
-        'relative flex flex-col overflow-hidden max-h-(--reka-select-content-available-height) ',
+        'relative flex flex-col overflow-hidden max-h-(--reka-select-content-available-height)',
         position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
         position === 'popper' && menuAnchoredMotionClass,

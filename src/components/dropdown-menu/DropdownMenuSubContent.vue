@@ -30,7 +30,7 @@ const { alignOffset, ready } = useSubmenuAlignment(currentElement)
       v-bind="forwarded"
       :align-offset="props.alignOffset ?? alignOffset"
       :style="{ visibility: ready ? undefined : 'hidden' }"
-      :class="cn(menuWidthClass, menuContentClass, menuAnchoredMotionClass, 'flex min-h-0 flex-col overflow-hidden max-h-(--reka-dropdown-menu-content-available-height)', ' origin-(--reka-dropdown-menu-content-transform-origin)', props.class)"
+      :class="cn(menuWidthClass, menuContentClass, menuAnchoredMotionClass, 'flex min-h-0 flex-col overflow-hidden max-h-(--reka-dropdown-menu-content-available-height) origin-(--reka-dropdown-menu-content-transform-origin)', props.class)"
     >
       <MenuScrollArea ref="menuArea">
         <slot />

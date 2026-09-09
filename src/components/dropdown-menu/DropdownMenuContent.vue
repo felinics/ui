@@ -38,7 +38,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         menuContentClass,
         menuAnchoredMotionClass,
         'flex min-h-0 flex-col overflow-hidden',
-        'max-h-(--reka-dropdown-menu-content-available-height)  origin-(--reka-dropdown-menu-content-transform-origin)',
+        'max-h-(--reka-dropdown-menu-content-available-height) origin-(--reka-dropdown-menu-content-transform-origin)',
         props.class
       )"
     >
