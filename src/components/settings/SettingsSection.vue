@@ -5,8 +5,11 @@
 // shim) so the section card has exactly one implementation.
 withDefaults(defineProps<{
   title?: string
+  /** Keep a boundary when nested inside another card-colored surface. */
+  bordered?: boolean
 }>(), {
   title: '',
+  bordered: false,
 })
 </script>
 
@@ -31,8 +34,8 @@ withDefaults(defineProps<{
          whatever content element sits directly above the footer's hairline. -->
     <div
       data-settings-section-card
-      class="overflow-hidden rounded-menu-shell border border-border bg-card"
-      :class="$slots.footer ? '[&>:nth-last-child(3)]:border-b-0' : ''"
+      class="overflow-hidden rounded-menu-shell border border-border bg-section-card"
+      :class="[!bordered && 'dark:border-0', $slots.footer && '[&>:nth-last-child(3)]:border-b-0']"
     >
       <slot />
       <!-- Footer: a right-aligned action bar (Save/Cancel) or a pagination strip.

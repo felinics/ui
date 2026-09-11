@@ -11,6 +11,8 @@ import { buttonVariants } from '.'
 interface Props extends PrimitiveProps {
   variant?: ButtonVariants['variant']
   size?: ButtonVariants['size']
+  /** Muted resting color for ghost toolbar actions; interaction restores foreground. */
+  tone?: 'default' | 'muted'
   /** Corner shape, orthogonal to size. `circle` forces rounded-full over the
    *  size's rounded-md — use with size="icon"/"icon-sm" for a round icon button
    *  instead of hand-writing `class="rounded-full"` at the call site. */
@@ -54,6 +56,7 @@ const resolvedVariant = computed<ButtonVariants['variant']>(() => props.variant 
 const buttonClass = computed(() =>
   cn(
     buttonVariants({ variant: resolvedVariant.value, size: props.size, shape: props.shape }),
+    resolvedVariant.value === 'ghost' && props.tone === 'muted' && 'text-muted-foreground',
     props.block && 'w-full',
     props.class,
   ),
@@ -73,6 +76,7 @@ const buttonClass = computed(() =>
     :as="as"
     :as-child="asChild"
     :data-variant="resolvedVariant"
+    :data-tone="resolvedVariant === 'ghost' ? tone : undefined"
     :data-size="size || undefined"
     :data-block="block ? '' : undefined"
     :data-loading="loading ? '' : undefined"

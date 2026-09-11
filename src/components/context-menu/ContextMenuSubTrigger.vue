@@ -7,7 +7,7 @@ import {
   ContextMenuSubTrigger,
   useForwardProps,
 } from 'reka-ui'
-import { menuItemClass } from '#/lib/menu'
+import { menuIndicatorStrokeWidth, menuItemClass } from '#/lib/menu'
 import { cn } from '#/lib/utils'
 
 const props = defineProps<ContextMenuSubTriggerProps & { class?: HTMLAttributes['class'], inset?: boolean }>()
@@ -29,6 +29,9 @@ const forwardedProps = useForwardProps(delegatedProps)
     )"
   >
     <slot />
-    <ChevronRight class="ml-auto" />
+    <ChevronRight
+      :stroke-width="menuIndicatorStrokeWidth"
+      class="ml-auto"
+    />
   </ContextMenuSubTrigger>
 </template>

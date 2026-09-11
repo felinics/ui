@@ -32,7 +32,7 @@ const delegatedProps = reactiveOmit(props, 'class')
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
 const navButtonClass = cn(
-  'inline-flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors',
+  'inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors',
   'hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/30',
   'disabled:pointer-events-none disabled:opacity-40',
 )
@@ -49,7 +49,7 @@ const cellClass = cn(
 // The day button itself: transparent at rest (band shows through), charcoal fill on
 // the two endpoints, accent on the hover-preview span, muted for out-of-month/disabled.
 const cellTriggerClass = cn(
-  'relative inline-flex size-9 select-none items-center justify-center rounded-md text-sm font-normal text-foreground outline-none transition-colors',
+  'relative inline-flex size-9 cursor-pointer select-none items-center justify-center rounded-md text-sm font-normal text-foreground outline-none transition-colors',
   'hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/30',
   'data-[highlighted]:bg-accent data-[highlighted]:text-foreground',
   'data-[selection-start]:bg-foreground data-[selection-start]:text-background data-[selection-start]:hover:bg-foreground',

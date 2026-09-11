@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="group/tile relative flex w-52 flex-col items-center rounded-menu-shell border border-border p-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+    class="group/tile relative flex w-52 cursor-pointer flex-col items-center rounded-menu-shell border border-border p-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
     :class="surfaceClass"
   >
     <!-- Corner status: entry-only, and present only when the tile has something

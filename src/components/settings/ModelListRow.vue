@@ -29,7 +29,7 @@ const emit = defineEmits<{ click: [] }>()
 // (BackendCard, CalloutBanner's clickable variant) — the row's own chrome,
 // not a page injection.
 const rowClass = 'flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-foreground transition-colors disabled:pointer-events-none' /* ui-allow-style */
-const interactiveRowClass = 'hover:bg-accent disabled:opacity-40' /* ui-allow-style */
+const interactiveRowClass = 'cursor-pointer hover:bg-accent disabled:opacity-40' /* ui-allow-style */
 // ui-allow-alpha: pinned owner value, lifted verbatim with the row.
 const trailingIconClass = 'size-4 shrink-0 text-muted-foreground/60' /* ui-allow-alpha */
 </script>

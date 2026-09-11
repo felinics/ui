@@ -7,7 +7,8 @@ import {
   ContextMenuPortal,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { menuContentClass, menuViewportClass } from '#/lib/menu'
+import { menuWidthClass, menuContentClass, menuAnchoredMotionClass } from '#/lib/menu'
+import MenuScrollArea from '../menu-scroll-area/MenuScrollArea.vue'
 import { cn } from '#/lib/utils'
 
 defineOptions({
@@ -28,13 +29,15 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       data-slot="context-menu-content"
       v-bind="{ ...$attrs, ...forwarded }"
       :class="cn(
+        menuWidthClass,
         menuContentClass,
-        menuViewportClass,
-        'max-h-(--reka-context-menu-content-available-height) min-w-[8rem]',
+        menuAnchoredMotionClass,
+        'origin-(--reka-context-menu-content-transform-origin)',
+        'flex min-h-0 flex-col overflow-hidden max-h-(--reka-context-menu-content-available-height)',
         props.class,
       )"
     >
-      <slot />
+      <MenuScrollArea><slot /></MenuScrollArea>
     </ContextMenuContent>
   </ContextMenuPortal>
 </template>

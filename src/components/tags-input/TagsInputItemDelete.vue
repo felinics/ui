@@ -26,7 +26,7 @@ const forwardedProps = useForwardProps(delegatedProps)
       //      stop (-border). The ghost button's --btn-ghost-hover is tuned for a
       //      white page and would vanish on this already-gray chip, so the ramp step
       //      is the correct reuse here. Icon is muted at rest, foreground on hover.
-      'inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground',
+      'inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground',
       'transition-colors hover:bg-accent-gray-border hover:text-foreground',
       'focus-visible:outline-none focus-visible:bg-accent-gray-border focus-visible:text-foreground',
       props.class,

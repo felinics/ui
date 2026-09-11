@@ -9,10 +9,10 @@ import {
   SelectViewport,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { onBeforeUnmount, ref, watch } from 'vue'
-import { menuContentClass, menuAlignOffset, menuSlideClass, menuViewportClass } from '#/lib/menu'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { menuWidthClass, menuContentClass, menuAnchoredMotionClass, menuAlignOffset } from '#/lib/menu'
 import { cn } from '#/lib/utils'
-import { SelectScrollDownButton, SelectScrollUpButton } from '.'
+import MenuScrollArea from '../menu-scroll-area/MenuScrollArea.vue'
 
 defineOptions({
   inheritAttrs: false,
@@ -43,18 +43,6 @@ function onMenuPointerMove(e: PointerEvent): void {
   }
   if (e.clientX !== originX || e.clientY !== originY) clearHint()
 }
-watch(() => rootContext.open.value, (open) => {
-  if (open) {
-    openHint.value = true
-    originX = Number.NaN
-    originY = Number.NaN
-    document.addEventListener('keydown', clearHint, true)
-  }
-  else {
-    openHint.value = false
-    document.removeEventListener('keydown', clearHint, true)
-  }
-}, { immediate: true })
 onBeforeUnmount(() => document.removeEventListener('keydown', clearHint, true))
 
 const props = withDefaults(
@@ -80,11 +68,55 @@ const props = withDefaults(
     alignOffset: menuAlignOffset,
   },
 )
+watch(() => rootContext.open.value, (open) => {
+  if (open) {
+    openHint.value = true
+    originX = Number.NaN
+    originY = Number.NaN
+    document.addEventListener('keydown', clearHint, true)
+  }
+  else {
+    openHint.value = false
+    document.removeEventListener('keydown', clearHint, true)
+  }
+}, { immediate: true })
+
 const emits = defineEmits<SelectContentEmits>()
 
 const delegatedProps = reactiveOmit(props, 'class', 'size')
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
+const scrollViewport = ref<InstanceType<typeof MenuScrollArea> | null>(null)
+const viewportElement = computed(() => scrollViewport.value?.viewportElement)
+const measurementReady = ref(false)
+
+watch(viewportElement, async (element, _previous, onCleanup) => {
+  measurementReady.value = false
+  if (!element?.isConnected)
+    return
+  let cancelled = false
+  onCleanup(() => { cancelled = true })
+  // Measuring mounted text starts any lazily loaded font subsets. Keep the
+  // panel measurable but invisible until their final metrics reach Floating UI.
+  element.getBoundingClientRect()
+  if (document.fonts.status === 'loading') {
+    await document.fonts.ready
+    // ResizeObserver schedules Floating UI's update after the font relayout;
+    // the following frame paints with that updated position.
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  }
+  if (!cancelled) {
+    measurementReady.value = true
+    await nextTick()
+    // Reka may attempt initial focus while font measurement keeps the menu
+    // invisible. Restore it after reveal, without moving an existing item focus.
+    if (!cancelled && rootContext.open.value && !element.contains(document.activeElement)) {
+      const selected = element.querySelector<HTMLElement>('[data-slot="select-item"][data-state="checked"]:not([data-disabled])')
+      const first = element.querySelector<HTMLElement>('[data-slot="select-item"]:not([data-disabled])')
+      ;(selected ?? first)?.focus({ preventScroll: true })
+    }
+  }
+}, { flush: 'post' })
 </script>
 
 <template>
@@ -93,31 +125,34 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       data-slot="select-content"
       v-bind="{ ...$attrs, ...forwarded }"
       :class="cn(
+        menuWidthClass,
         menuContentClass,
-        'relative max-h-(--reka-select-content-available-height) min-w-[8rem]',
+        !measurementReady && 'invisible animate-none!',
+        'relative flex flex-col overflow-hidden max-h-(--reka-select-content-available-height)',
         position === 'popper'
-          && cn(menuSlideClass, 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1'),
-        // A Select is a value CHOOSER, not an action menu: its rows track the
-        // TRIGGER's type size (default 13px / sm 12px), never the 14px action-menu
-        // size — so the open list reads as the same control, not a heavier menu.
-        // Only the type scales; row padding/height stay comfortable (no cramping).
+          && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+        position === 'popper' && menuAnchoredMotionClass,
+        'origin-(--reka-select-content-transform-origin)',
+        // Increase label size without growing the established row height.
         size === 'sm'
-          ? '[&_[data-slot=select-item]]:text-body'
-          : '[&_[data-slot=select-item]]:text-label',
+          ? '[&_[data-slot=select-item]]:text-label'
+          : '[&_[data-slot=select-item]]:text-control',
         props.class,
       )
       "
     >
-      <SelectScrollUpButton />
-      <SelectViewport
-        data-slot="select-viewport"
-        :data-open-hint="openHint ? '' : undefined"
-        :class="cn(menuViewportClass, position === 'popper' && 'w-full min-w-[calc(var(--reka-select-trigger-width)_+_8px)] scroll-my-1')"
-        @pointermove="onMenuPointerMove"
+      <MenuScrollArea
+        ref="scrollViewport"
+        :viewport-as="SelectViewport"
+        :viewport-attrs="{
+          'data-slot': 'select-viewport',
+          class: position === 'popper' ? 'min-w-(--reka-select-trigger-width) scroll-my-1' : undefined,
+          'data-open-hint': openHint ? '' : undefined,
+          onPointermove: onMenuPointerMove,
+        }"
       >
         <slot />
-      </SelectViewport>
-      <SelectScrollDownButton />
+      </MenuScrollArea>
     </SelectContent>
   </SelectPortal>
 </template>

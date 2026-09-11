@@ -633,6 +633,23 @@ grows (clipped controls, cramped rows, same-row controls that stop matching heig
 
 - Every interactive control sets `cursor-pointer` (Button, Switch, segmented
   item, …). Disabled flips to `cursor-not-allowed`.
+- **It must be set explicitly — there is no safety net.** Tailwind v4's
+  preflight dropped the v3-era `button, [role=button] { cursor: pointer }`
+  rule, so every clickable element falls back to the UA default (the plain
+  arrow) unless the component sets the class itself. When adding a new
+  interactive component, `cursor-pointer` is part of the base class, not an
+  afterthought — a shared trigger class (e.g. `lib/trigger.ts`
+  `selectTriggerClass`) carries it once for all consumers.
+- **Deliberate non-pointer exceptions** (do not "fix" these):
+  - **Menu rows and menu labels** (`lib/menu.ts`) use `cursor-default` — the
+    macOS menu convention: an open menu is a transient command surface the
+    pointer glides over, not a page of buttons.
+  - **Select scroll up/down buttons** — part of the menu surface, same
+    convention.
+  - **Text-field addons** (`InputGroup` inline text/icons) use `cursor-text` —
+    they belong to the field's text zone.
+  - **Resize rails** (`SidebarRail`) use the resize cursor; **the ScrollArea
+    thumb** keeps its default (drag affordance is its own vocabulary).
 
 ## Dirty patterns — anti-examples (do NOT copy)
 
@@ -842,3 +859,13 @@ When you lock a new cross-cutting decision (a color role, a duration, an icon
 rule, a shape law): (1) add/identify the token in `style.css`, (2) document it
 here, (3) add a guard check in `scripts/check-ui-contract.mjs` if it is
 mechanically detectable. A decision that is not written here will be re-invented.
+
+## Nested menu alignment
+
+DropdownMenuSubContent 与 ContextMenuSubContent 默认将子菜单首个条目的垂直中心对齐父触发条目的中心，而非对齐两个矩形的顶边。共享 useSubmenuAlignment 测量条目、边框与内框，适应字体缩放和异步内容；调用层不添加补偿偏移。显式 alignOffset 仍可覆盖默认规则。碰撞处理继续由 Reka 负责：空间不足时允许翻转或移动以保持可操作，不以绝对对齐强迫内容溢出。子菜单复用锚定菜单的进入/退出动画与变换原点。
+
+## Menu leading icons
+
+菜单首图标的外框尺寸与间距由菜单组件统一管理，调用方直接传入图标，不添加 `mr-*`、`ml-*`、尺寸或偏移修正。共享样式兼容旧调用的 margin/size 类；SVG 内部几何仍由图标层负责。DropdownMenu 和 ContextMenu 的菜单项遵循同一规则；根 ContextMenu 在光标锚点使用共享淡入缩放与退出动画，不使用方向滑动。
+
+普通操作菜单与 Select 共用 `--menu-min-width`（10rem）作为舒展的基础宽度，窄屏允许收缩。Select 仍不得窄于触发器；更长内容可扩展。菜单比例通过宽度和内容组织调整，不通过压低共享行高补偿。业务确需不同宽度时使用已有 class 覆盖，不为短文案逐页设置最小宽度。

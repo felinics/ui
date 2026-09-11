@@ -1,3 +1,11 @@
+/* tw-animate-css defines the animate-in/fade/zoom/slide utilities that the
+   overlay components emit (lib/menu.ts, Dialog, Popover, Select…). The library
+   must import it itself: before this line, a consumer that only imported
+   style.css got silently DEAD animation classes (no open/close motion at all)
+   unless it happened to import tw-animate-css on its own — which the showcase
+   didn't, so every overlay here used to pop in instantly. */
+@import "tw-animate-css";
+
 @custom-variant dark (&:is(.dark *));
 
 @layer components {
@@ -188,6 +196,11 @@
     box-shadow: inset 0 0 0 1px var(--field-edge);
     transition: box-shadow 0.07s ease-out;
   }
+  /* Plain inputs share the resting edge of Select and secondary buttons;
+     focus and validation below still replace that edge in place. */
+  [data-slot="input"] {
+    --field-edge: var(--border-hairline);
+  }
   /* Placeholder: same type metrics as real input (size/weight/tracking) so the
      hint sits on the exact same rhythm as typed text — only the color is lighter
      so it reads as a soft hint rather than competing with real input. */
@@ -268,15 +281,20 @@
     box-shadow: 0 0 0 1000px var(--background) inset;
   }
 
-  /* ── Select — a BUTTON, not a field. The trigger wears light secondary-button
-     chrome: a faint resting hairline plus a gray fill on hover, instead of the
-     input field-edge that flashed a near-black committed border. */
+  /* ── Select — a BUTTON, not a field. The trigger wears THE SAME secondary-button
+     chrome as outline/secondary <Button>: the --shadow-hairline inset edge and the
+     same hover fill language, instead of the input field-edge that flashed a
+     near-black committed border. This keeps the two control families reading as
+     one (they used to share the field edge, then drifted apart when the button
+     chrome was tuned). */
   [data-slot="select-trigger"] {
     background-color: transparent;
-    box-shadow: inset 0 0 0 1px var(--field-edge-rest);
+    box-shadow: var(--shadow-hairline);
     transition:
       background-color 110ms ease,
-      box-shadow 110ms ease;
+      box-shadow 0.06s ease-out; /* button-side hover drops the ring at 60ms —
+       the trigger borrows the pair but keeps its slower 110ms hover; the ring
+       dropping on a value chooser read as the field-edge flash this rule replaced. */
     /* Hover is PURELY pointer-driven (pointer on = fill, off = none). Reka sets
        pointer-events:none on the page while the menu is open, which would make
        the trigger inert (unhoverable) — and, on close, the page stays inert for
@@ -289,7 +307,7 @@
     pointer-events: auto;
   }
   [data-slot="select-trigger"]:hover {
-    background-color: var(--ui-hover);
+    background-color: var(--btn-secondary-overlay);
   }
   /* No focus ring: reka returns DOM focus to the trigger after a mouse pick,
      and the browser then paints :focus-visible — which left a near-black ring
@@ -354,6 +372,16 @@
   [data-button][data-variant="ghost"] {
     position: relative;
     isolation: isolate;
+  }
+  /* Toolbar actions stay secondary at rest, retaining the ghost hover surface.
+     Color belongs to the button so nested glyphs and labels change together. */
+  [data-button][data-variant="ghost"][data-tone="muted"]:is(:focus-visible, :active, [data-state="open"], [aria-expanded="true"]):not(:disabled) {
+    color: var(--foreground) !important;
+  }
+  @media (hover: hover) {
+    [data-button][data-variant="ghost"][data-tone="muted"]:hover:not(:disabled) {
+      color: var(--foreground) !important;
+    }
   }
   [data-button][data-variant="ghost"]::before {
     content: "";
@@ -525,7 +553,7 @@
     width: 1.5rem;
     opacity: 1;
   }
-  [data-button][data-loading][data-loading-mode="icon"] > [data-button-content] > svg:first-child {
+  [data-button][data-loading][data-loading-mode="icon"] > [data-button-content] > :is(svg, img):first-child {
     animation: button-spin 1s linear infinite;
   }
   /* Busy holds the most-engaged color (no pop on the click→spin handoff). */
@@ -608,6 +636,10 @@
     border-radius: var(--radius-menu-shell);
     background-color: transparent;
     transition: background-color 15ms ease;
+  }
+  /* Borderless dark cards keep the interaction overlay inside their own box. */
+  .dark [data-slot="action-card"]:not([data-bordered])::before {
+    inset: 0;
   }
   :is(button, a)[data-slot="action-card"]:hover::before {
     background-color: var(--action-card-hover);
@@ -1046,6 +1078,16 @@
 }
 
 :root, [data-color-scheme-preview="memoh"] {
+  --select-fade-midpoint: rgb(0 0 0 / 0.4); /* Mask alpha, independent of theme. */
+  /* Nine 34px rows and eight 2px gaps, scaling with the root font. */
+  --menu-frame-spacing: 0.25rem;
+  --menu-separator-color: var(--border-soft);
+  --menu-row-gap: 0.125rem;
+  --menu-leading-icon-size: 1rem;
+  --menu-min-width: 10rem;
+  --menu-item-leading-size: calc(var(--text-label--line-height) + 1rem);
+  --menu-viewport-max-height: calc(2.125rem * 9 + 0.125rem * 8);
+  --select-viewport-max-height: var(--menu-viewport-max-height);
   --font-sans: "Inter Variable", "Inter", "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
   --radius: 0.625rem;
   --scheme-hue: 72;
@@ -1076,6 +1118,7 @@
   --background-chrome: oklch(0.975 0.0026 63);
   --foreground: oklch(0.21 0.004 95);
   --card: oklch(1 0 0);
+  --section-card: var(--card);
   --card-foreground: oklch(0.21 0.004 95);
   --popover: var(--card);
   --popover-foreground: var(--card-foreground);
@@ -1226,8 +1269,9 @@
        --shadow-hairline  1px inset edge (outline / secondary button chrome)
        --shadow-thumb     subtle lift for the segmented sliding thumb
        --shadow-dropdown  dropdown elevation for menu surfaces */
-  /* Hairline edge color — shared by secondary/outline button chrome and small
-     control borders (checkbox). A future Design Token revision target. */
+  /* Hairline edge color — shared by secondary/outline button chrome, the Select
+     trigger, and small control borders (checkbox). A future Design Token
+     revision target. */
   --border-hairline: oklch(0 0 0 / 0.16);
   /* Edge for ELEVATED surfaces (dropdown / popover menus). A neutral hairline a
      touch stronger than the field/button edge (--field-edge-rest 0.11) so the
@@ -1246,7 +1290,7 @@
   --border-menu-elevated: transparent;
   --shadow-hairline: inset 0 0 0 1px var(--border-hairline);
   --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.08);
-  --shadow-dropdown: 0 1px 2px 0 oklch(0 0 0 / 0.04), 0 6px 18px -6px oklch(0 0 0 / 0.08);
+  --shadow-dropdown: 0 1px 2px 0 oklch(0 0 0 / 0.03), 0 4px 12px -6px oklch(0 0 0 / 0.05);
   /* Elevation for any surface floating in the MODAL layer over a scrim — the card
      Dialog / Sheet panels AND the CommandDialog menu palette all share it so modal
      depth never fragments (was: per-component shadow-2xl / shadow-lg / a bespoke
@@ -1465,9 +1509,10 @@
 }
 
 .dark, .dark [data-color-scheme-preview="memoh"] {
-  --background: oklch(0.152 0 0);
+  --background: oklch(0.12212 0 0);
   --foreground: oklch(0.90 0 0);
   --card: oklch(0.21 0 0);
+  --section-card: var(--card);
   --card-foreground: oklch(0.90 0 0);
   --popover: oklch(0.21 0 0);
   --popover-foreground: oklch(0.90 0 0);
@@ -1490,7 +1535,7 @@
    * unchanged (1px) — only the contrast tracks the brighter surface. Still well
    * below the old hard 10%. Light mode is unaffected. */
   --border: oklch(1 0 0 / 8%);
-  --border-hairline: oklch(0.422 0 0);
+  --border-hairline: oklch(0.34543 0 0); /* ~RGB 57: +33 over the RGB 24 card. */
   --border-menu: oklch(1 0 0 / 0.14);
   /* Dark: a dark palette on a dark scrim DOES need an edge, so here the elevated
      menu border is a WHITE hairline (light-on-dark), a touch stronger than
@@ -1889,7 +1934,7 @@
 }
 
 .dark[data-color-scheme]:not([data-color-scheme="memoh"]), .dark [data-color-scheme-preview]:not([data-color-scheme-preview="memoh"]) {
-  --background: oklch(0.152 0.006 var(--scheme-hue));
+  --background: oklch(0.12212 0.006 var(--scheme-hue));
   --foreground: oklch(0.90 0.004 var(--scheme-hue));
   --card: oklch(0.21 0.006 var(--scheme-hue));
   --card-foreground: oklch(0.90 0.004 var(--scheme-hue));
@@ -1923,6 +1968,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  --color-section-card: var(--section-card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
@@ -2449,5 +2495,119 @@
   .memoh-toast-leave-active,
   .memoh-toast-move {
     transition-duration: 1ms;
+  }
+}
+
+
+/* Registered as <length> (not inherited) so the fade distance itself can
+   transition — an unregistered custom prop would snap between values. */
+@property --scroll-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.scroll-fade {
+  /* transparent/black here are ALPHA stops in a mask, not paint colors. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--scroll-fade-top),
+    black calc(100% - var(--scroll-fade-bottom)),
+    transparent
+  );
+  transition:
+    --scroll-fade-top 200ms ease,
+    --scroll-fade-bottom 200ms ease;
+}
+
+.scroll-fade[data-slot="select-viewport"] {
+  /* Keep the fade distance while reducing content opacity earlier in the edge. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--select-fade-midpoint) calc(var(--scroll-fade-top) / 2),
+    black var(--scroll-fade-top),
+    black calc(100% - var(--scroll-fade-bottom)),
+    var(--select-fade-midpoint) calc(100% - var(--scroll-fade-bottom) / 2),
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-fade {
+    transition: none;
+  }
+}
+
+/* Motion ported from Memoh sidebar-scroll.css at 8382d42eb (#1076).
+   Reka Presence keeps the scrollbar mounted until the exit animation ends. */
+[data-slot="scroll-area-scrollbar"][data-state="visible"] {
+  animation: scroll-area-in 0.1s ease-out both;
+}
+[data-slot="scroll-area-scrollbar"][data-state="hidden"] {
+  animation: scroll-area-out 0.16s ease-in both;
+}
+@keyframes scroll-area-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scroll-area-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="scroll-area-scrollbar"] { animation: none; }
+}
+
+/* Icon-leading rows reserve a square column matching the single-line row.
+   The menu owns icon size and spacing; grid alignment centers the glyph.
+   SelectItemText is transparent to this grid only when it has a leading icon. */
+@layer utilities {
+  .menu-item:has(> :is(svg, img):first-child),
+  .menu-item:has(> [data-slot="select-item-text"] > :is(svg, img):first-child) {
+    display: grid;
+    grid-template-columns: var(--menu-item-leading-size) minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    min-height: var(--menu-item-leading-size);
+    padding-block: 0;
+    padding-inline-start: 0;
+    column-gap: 0;
+  }
+  .menu-item > :is(svg, img):first-child,
+  .menu-item > [data-slot="select-item-text"] > :is(svg, img):first-child {
+    /* Menu geometry overrides legacy size/margin utilities at call sites. */
+    width: var(--menu-leading-icon-size) !important;
+    height: var(--menu-leading-icon-size) !important;
+    margin: 0 !important;
+    justify-self: center;
+    align-self: center;
+  }
+  .menu-item > [data-slot="select-item-text"]:has(> :is(svg, img):first-child) {
+    display: contents;
+  }
+}
+
+
+@layer components {
+  .menu-item [data-menu-item-hint] { opacity: 0; }
+  .menu-item[data-highlighted] [data-menu-item-hint],
+  .menu-item:focus-visible [data-menu-item-hint] { opacity: 1; }
+}
+
+@layer utilities {
+  /* The flex gap already contributes to separator clearance. Match the outer
+     frame rather than adding a second full frame above and below the line. */
+  .menu-viewport > [role="separator"] {
+    margin-block: max(0px, calc(var(--menu-frame-spacing) - var(--menu-row-gap)));
+    margin-inline: calc(var(--menu-frame-spacing) * 2);
   }
 }

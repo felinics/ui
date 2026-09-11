@@ -5,7 +5,10 @@
        (no current caller uses it — kept as the escape hatch for bare stats so
        the next one doesn't fork the tile). Shared min-h so a cold-load tile
        doesn't jump. -->
-  <div :class="framed ? 'flex min-h-[4.375rem] flex-col rounded-menu-shell border border-border bg-card p-3' : 'flex flex-col'">
+  <div
+    data-slot="metric-readout"
+    :class="[framed ? 'flex min-h-[4.375rem] flex-col rounded-menu-shell border border-border bg-card p-3' : 'flex flex-col', framed && !bordered && 'dark:border-0']"
+  >
     <!-- tracking-tight:紧凑指标标签的原有字距(context-card 8 块原样如此),
          统一后 bot-overview 的标签一并收紧。 -->
     <p class="text-caption tracking-tight text-muted-foreground">
@@ -59,7 +62,7 @@
 // vs the host original:
 // - token renames: framed radius rounded-[var(--radius-menu-shell)] →
 //   rounded-menu-shell, status value text-sm → text-control.
-// Everything else is byte-identical to the host original.
+// Dark framed tiles follow SettingsSection; bordered preserves nested boundaries.
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -67,6 +70,8 @@ const props = withDefaults(defineProps<{
   value?: string
   sub?: string
   framed?: boolean
+  /** Keep a boundary when nested inside another card-colored surface. */
+  bordered?: boolean
   // A rationed signal state. Present = the value line is a status dot + label
   // instead of a bare figure; absent = a plain metric readout.
   status?: 'ok' | 'warn' | 'error'
@@ -74,6 +79,7 @@ const props = withDefaults(defineProps<{
   value: '',
   sub: '',
   framed: true,
+  bordered: false,
 })
 
 const dotClass = computed(() => {

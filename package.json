@@ -32,6 +32,7 @@
     "reka-ui": "^2.10.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.3.3",
+    "tw-animate-css": "^1.4.0",
     "vee-validate": "^4.15.1",
     "vue-input-otp": "^0.3.2",
     "zod": "3.25.76"
@@ -50,7 +51,6 @@
     "misans-vf": "1.0.0",
     "npm-run-all2": "^8.0.4",
     "tsx": "^4.21.0",
-    "tw-animate-css": "^1.4.0",
     "typescript": "~6.0.3",
     "unplugin-dts": "1.0.0-beta.6",
     "vite": "^8.1.5",

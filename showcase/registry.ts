@@ -10,6 +10,7 @@ import RadiusPage from './pages/foundations/RadiusPage.vue'
 import SpacingPage from './pages/foundations/SpacingPage.vue'
 import TypographyPage from './pages/foundations/TypographyPage.vue'
 import OverviewPage from './pages/OverviewPage.vue'
+import SettingsPageExample from './pages/examples/SettingsPageExample.vue'
 
 // Single manifest: drives the sidebar groups, the hash routes, AND prev/next
 // order — one list, three consumers, so they can never drift.
@@ -29,6 +30,10 @@ export interface NavGroup {
 
 function foundation(id: string, title: string, titleZh: string, component: Component): PageEntry {
   return { kind: 'static', id: `foundations/${id}`, title, titleZh, component }
+}
+
+function example(id: string, title: string, titleZh: string, component: Component): PageEntry {
+  return { kind: 'static', id: `examples/${id}`, title, titleZh, component }
 }
 
 export const navGroups: NavGroup[] = [
@@ -58,6 +63,14 @@ export const navGroups: NavGroup[] = [
       title: spec.name,
       spec,
     })),
+  },
+  {
+    id: 'examples',
+    label: 'Examples',
+    labelZh: '示例',
+    pages: [
+      example('settings', 'Settings', '设置', SettingsPageExample),
+    ],
   },
 ]
 

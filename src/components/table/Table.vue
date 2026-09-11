@@ -3,6 +3,8 @@ import type { HTMLAttributes } from 'vue'
 import { cn } from '#/lib/utils'
 
 const props = defineProps<{
+  /** Keep a boundary when nested inside another card-colored surface. */
+  bordered?: boolean
   class?: HTMLAttributes['class']
 }>()
 </script>
@@ -11,6 +13,7 @@ const props = defineProps<{
   <div
     data-slot="table-container"
     class="relative w-full overflow-auto rounded-lg border border-border bg-card"
+    :class="!bordered && 'dark:border-0'"
   >
     <table
       data-slot="table"

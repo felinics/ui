@@ -23,9 +23,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   <DropdownMenuCheckboxItem
     data-slot="dropdown-menu-checkbox-item"
     v-bind="forwarded"
-    :class="cn(menuItemClass, 'pr-8', props.class)"
+    :class="cn(menuItemClass, 'pr-9', props.class)"
   >
-    <span class="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
+    <span class="pointer-events-none absolute right-3 flex size-3.5 items-center justify-center">
       <DropdownMenuItemIndicator>
         <slot name="indicator-icon">
           <Check class="size-4" />
