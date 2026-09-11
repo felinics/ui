@@ -5,6 +5,7 @@ import ColorsPage from './pages/foundations/ColorsPage.vue'
 import ElevationPage from './pages/foundations/ElevationPage.vue'
 import IconsPage from './pages/foundations/IconsPage.vue'
 import LayersPage from './pages/foundations/LayersPage.vue'
+import MarkdownPage from './pages/foundations/MarkdownPage.vue'
 import MotionPage from './pages/foundations/MotionPage.vue'
 import RadiusPage from './pages/foundations/RadiusPage.vue'
 import SpacingPage from './pages/foundations/SpacingPage.vue'
@@ -40,6 +41,7 @@ export const navGroups: NavGroup[] = [
       { kind: 'static', id: 'overview', title: 'Overview', titleZh: '概览', component: OverviewPage },
       foundation('colors', 'Colors', '颜色', ColorsPage),
       foundation('typography', 'Typography', '字体', TypographyPage),
+      foundation('markdown', 'Markdown body', '正文渲染', MarkdownPage),
       foundation('spacing', 'Spacing', '间距', SpacingPage),
       foundation('radius', 'Radius', '圆角', RadiusPage),
       foundation('elevation', 'Elevation', '阴影', ElevationPage),

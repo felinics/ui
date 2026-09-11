@@ -17,9 +17,13 @@ const props = withDefaults(defineProps<{
   // The measure (content column width). 'md' is the reading column every host
   // page uses (max-w-3xl). 'lg'/'xl' exist for board-style pages whose content
   // is a grid of specimens, not prose (the showcase's foundations/Overview
-  // pages). Never hand-set max-w on a page — if none of the three fits, that
-  // is a new tier to legislate here, not a class to write at the call site.
-  width?: 'md' | 'lg' | 'xl'
+  // pages). 'wall' is the full specimen wall: side-by-side columns compared
+  // against each other (the Markdown body page's 2 × chat-width columns:
+  // 49.5rem frame each + gap + gutter ≈ 103rem), so it caps at 104rem instead
+  // of squeezing the columns into a prose measure. Never hand-set max-w on a
+  // page — if none of the four fits, that is a new tier to legislate here,
+  // not a class to write at the call site.
+  width?: 'md' | 'lg' | 'xl' | 'wall'
 }>(), {
   title: '',
   description: '',
@@ -27,7 +31,7 @@ const props = withDefaults(defineProps<{
   width: 'md',
 })
 
-const MAX_W = { md: 'max-w-3xl', lg: 'max-w-4xl', xl: 'max-w-5xl' } as const
+const MAX_W = { md: 'max-w-3xl', lg: 'max-w-4xl', xl: 'max-w-5xl', wall: 'max-w-[104rem]' } as const
 
 const rootClass = computed(() =>
   props.variant === 'tab'

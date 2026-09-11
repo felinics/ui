@@ -3,6 +3,10 @@
    real app. The token law in AGENTS.md applies to showcase/ the same as src/. */
 @import "tailwindcss";
 @import "../src/style.css";
+/* markstream's own stylesheet must load BEFORE our markdown layer (source
+ * order breaks several specificity ties — see src/markdown.css header). */
+@import "markstream-vue/index.css";
+@import "../src/markdown.css";
 /* Bundled MiSans Variable as the CJK fallback (same vendored wrapper as the
    host app: weight clamped 150..450, size-adjust 96%) so zh showcase text
    renders identically to the app instead of per-OS system fonts. */
