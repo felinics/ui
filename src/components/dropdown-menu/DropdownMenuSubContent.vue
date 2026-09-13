@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuSubContentEmits, DropdownMenuSubContentProps } from 'reka-ui'
-import { computed, ref, type HTMLAttributes } from 'vue'
+import { computed, ref, watch, type HTMLAttributes } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import {
   DropdownMenuSubContent,
@@ -21,6 +21,17 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 const menuArea = ref<InstanceType<typeof MenuScrollArea>>()
 const currentElement = computed(() => menuArea.value?.viewportElement?.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]') ?? undefined)
 const { alignOffset, ready } = useSubmenuAlignment(currentElement)
+// Start the entrance on a fresh frame after mounting and placement have settled.
+// Otherwise a long list can consume the animation before its first visible paint.
+const motionReady = ref(false)
+watch(ready, (value, _, cleanup) => {
+  motionReady.value = false
+  if (!value) return
+  let frame = requestAnimationFrame(() => {
+    frame = requestAnimationFrame(() => { motionReady.value = true })
+  })
+  cleanup(() => cancelAnimationFrame(frame))
+}, { flush: 'post' })
 </script>
 
 <template>
@@ -30,7 +41,7 @@ const { alignOffset, ready } = useSubmenuAlignment(currentElement)
       v-bind="forwarded"
       :align-offset="props.alignOffset ?? alignOffset"
       :style="{ visibility: ready ? undefined : 'hidden' }"
-      :class="cn(menuWidthClass, menuContentClass, menuAnchoredMotionClass, 'flex min-h-0 flex-col overflow-hidden max-h-(--reka-dropdown-menu-content-available-height) origin-(--reka-dropdown-menu-content-transform-origin)', props.class)"
+      :class="cn(menuWidthClass, menuContentClass, menuAnchoredMotionClass, 'flex min-h-0 flex-col overflow-hidden max-h-(--reka-dropdown-menu-content-available-height) origin-(--reka-dropdown-menu-content-transform-origin)', props.class, !motionReady && 'animate-none! opacity-0')"
     >
       <MenuScrollArea ref="menuArea">
         <slot />
