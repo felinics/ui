@@ -21,13 +21,15 @@ import { cn } from '#/lib/utils'
 const props = withDefaults(defineProps<NumberFieldRootProps & {
   class?: HTMLAttributes['class']
   placeholder?: string
+  /** Unit displayed beside the value, inside the stepper. */
+  suffix?: string
   size?: 'sm' | 'default' | 'lg'
 }>(), {
   size: 'default',
 })
 const emits = defineEmits<NumberFieldRootEmits>()
 
-const delegated = reactiveOmit(props, 'class', 'placeholder', 'size')
+const delegated = reactiveOmit(props, 'class', 'placeholder', 'suffix', 'size')
 const forwarded = useForwardPropsEmits(delegated, emits)
 
 const sizeClass = computed(() => ({
@@ -68,11 +70,22 @@ const stepClass = computed(() => cn(
         <Minus />
       </Button>
     </NumberFieldDecrement>
-    <NumberFieldInput
-      data-slot="number-field-input"
-      :placeholder="placeholder"
-      class="w-full min-w-0 bg-transparent px-1 text-center tabular-nums text-foreground outline-none disabled:pointer-events-none"
-    />
+    <div class="flex min-w-0 flex-1 items-center justify-center gap-1">
+      <NumberFieldInput
+        data-slot="number-field-input"
+        :placeholder="placeholder"
+        class="min-w-0 bg-transparent px-1 tabular-nums text-foreground outline-none disabled:pointer-events-none"
+        :class="suffix ? 'field-sizing-content w-auto max-w-full text-right' : 'w-full text-center'"
+      />
+      <span
+        v-if="suffix"
+        data-slot="number-field-suffix"
+        class="shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      >
+        {{ suffix }}
+      </span>
+    </div>
     <NumberFieldIncrement as-child>
       <Button
         type="button"
