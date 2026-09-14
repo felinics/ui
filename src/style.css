@@ -2590,7 +2590,7 @@
    The menu owns icon size and spacing; grid alignment centers the glyph.
    SelectItemText is transparent to this grid only when it has a leading icon. */
 @layer utilities {
-  .menu-item:has(> :is(svg, img):first-child),
+  .menu-item:has(> :is(svg, img, [data-slot="avatar"]):first-child),
   .menu-item:has(> [data-slot="select-item-text"] > :is(svg, img):first-child) {
     display: grid;
     grid-template-columns: var(--menu-item-leading-size) minmax(0, 1fr);
@@ -2601,7 +2601,7 @@
     padding-inline-start: 0;
     column-gap: 0;
   }
-  .menu-item > :is(svg, img):first-child,
+  .menu-item > :is(svg, img, [data-slot="avatar"]):first-child,
   .menu-item > [data-slot="select-item-text"] > :is(svg, img):first-child {
     /* Menu geometry overrides legacy size/margin utilities at call sites. */
     width: var(--menu-leading-icon-size) !important;
