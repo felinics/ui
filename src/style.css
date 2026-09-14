@@ -309,6 +309,18 @@
   [data-slot="select-trigger"]:hover {
     background-color: var(--btn-secondary-overlay);
   }
+  /* Opt-in hover escape hatch: data-hover-lighten flips JUST this trigger to a
+     white overlay. The default dark hover is a pure-black fill (darken) — a
+     deliberate aesthetic — but it is invisible on the near-black app canvas
+     (--background ≈ RGB 17 offers no downward range). Call sites whose trigger
+     sits directly on the canvas (onboarding) set this attribute; triggers on
+     lighter surfaces keep the darken. TEMPORARY call-site distinction: the
+     surface-aware polarity question (lighten vs darken per surface) is owned
+     by the upcoming design-system refactor, not by sprinkling this attribute
+     wider. No-op in light, where the token equals the default fill. */
+  [data-slot="select-trigger"][data-hover-lighten]:hover {
+    background-color: var(--select-trigger-hover-lighten);
+  }
   /* No focus ring: reka returns DOM focus to the trigger after a mouse pick,
      and the browser then paints :focus-visible — which left a near-black ring
      stuck on the closed trigger ("triggered" look). The resting hairline plus
@@ -1422,6 +1434,9 @@
      secondary button shell; segmented items). Black in light mode; the .dark
      block flips the segmented ones to white so they lighten instead. */
   --btn-secondary-overlay: oklch(0 0 0 / 0.12);
+  /* Light: the opt-in lighten variant is identical to the default — the
+     attribute is a dark-only escape hatch, a no-op here by design. */
+  --select-trigger-hover-lighten: oklch(0 0 0 / 0.12);
   --segment-overlay-hover: oklch(0 0 0 / 0.05);
   --segment-overlay-active: oklch(0 0 0 / 0.08);
   /* Segmented idle / hover label — lighter than global muted for an airier read;
@@ -1725,6 +1740,10 @@
   /* Dark: secondary button hover — pure black fill. Border (--border-hairline)
      is restored by the .dark override above, so the button shape stays clear. */
   --btn-secondary-overlay: oklch(0 0 0);
+  /* Dark: the opt-in LIGHTEN hover (see the data-hover-lighten rule at the
+     select-trigger styles). Only meaningfully different from the default on
+     the near-black app canvas, where the black fill has no downward range. */
+  --select-trigger-hover-lighten: oklch(1 0 0 / 0.08);
   /* Dark: destructive ghost hover — warmer translucent red, brighter than before. */
   --btn-destructive-hover-bg: oklch(0.36 0.12 25 / 0.55);
   --btn-destructive-hover-text: oklch(0.80 0.18 25);
