@@ -40,7 +40,7 @@ const { fadeTop, fadeBottom } = useScrollFade(element)
           '--scroll-fade-top': fadeTop ? '16px' : '0px',
           '--scroll-fade-bottom': fadeBottom ? '16px' : '0px',
         }"
-        :tabindex="-1"
+        :tabindex="props.viewportAttrs?.tabindex ?? -1"
       >
         <div :class="props.layout === 'virtual' ? '' : cn(menuViewportClass, 'p-0')">
           <slot />
