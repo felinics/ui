@@ -23,7 +23,11 @@ export function useSubmenuAlignment(
         ready.value = true
         return
       }
-      const first = element.querySelector<HTMLElement>('[role^="menuitem"]')
+      // Virtual listboxes may unmount their first option while scrolling. Only
+      // anchor to logical row one, never to the first currently mounted row.
+      const first = element.querySelector<HTMLElement>(
+        '[role^="menuitem"], [role="option"][aria-posinset="1"], [role="option"]:not([aria-posinset])',
+      )
       if (first && element.offsetWidth) {
         const bounds = element.getBoundingClientRect()
         // Opening scale animation must not influence layout measurements.
