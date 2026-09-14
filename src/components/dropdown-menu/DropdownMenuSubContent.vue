@@ -14,19 +14,21 @@ import { cn } from '#/lib/utils'
 
 const props = withDefaults(defineProps<DropdownMenuSubContentProps & {
   class?: HTMLAttributes['class']
+  /** Information panels can align their top edge with the parent menu. */
+  alignment?: 'first-item' | 'parent-start'
   /** Searchable/virtualized content owns its own scroll viewport and frame. */
   scrollable?: boolean
 }>(), { scrollable: true })
 const emits = defineEmits<DropdownMenuSubContentEmits>()
 
-const delegatedProps = reactiveOmit(props, 'class', 'scrollable')
+const delegatedProps = reactiveOmit(props, 'class', 'scrollable', 'alignment')
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 const menuArea = ref<InstanceType<typeof MenuScrollArea>>()
 const customBody = ref<HTMLElement>()
 const currentElement = computed(() => (menuArea.value?.viewportElement ?? customBody.value)
   ?.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]') ?? undefined)
-const { alignOffset, ready } = useSubmenuAlignment(currentElement)
+const { alignOffset, ready } = useSubmenuAlignment(currentElement, () => props.alignment ?? 'first-item')
 // Start the entrance on a fresh frame after mounting and placement have settled.
 // Otherwise a long list can consume the animation before its first visible paint.
 const motionReady = ref(false)
