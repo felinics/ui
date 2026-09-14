@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import type { DialogRootEmits, DialogRootProps } from 'reka-ui'
+import { reactiveOmit } from '@vueuse/core'
 import { useForwardPropsEmits } from 'reka-ui'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '#/components/dialog'
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '#/components/dialog'
 import Command from './Command.vue'
 
 const props = withDefaults(defineProps<DialogRootProps & {
+  /** A compact, titled chooser; palette callers keep their search-first layout. */
+  variant?: 'palette' | 'picker'
   title?: string
   description?: string
 }>(), {
+  variant: 'palette',
   title: 'Command Palette',
   description: 'Search for a command to run...',
 })
 const emits = defineEmits<DialogRootEmits>()
 
-const forwarded = useForwardPropsEmits(props, emits)
+const forwarded = useForwardPropsEmits(reactiveOmit(props, 'variant', 'title', 'description'), emits)
 </script>
 
 <template>
@@ -30,16 +34,19 @@ const forwarded = useForwardPropsEmits(props, emits)
       menu-shell, card vs popover, shadow-2xl vs dropdown). The backdrop scrim AND the
       open/close motion (100ms fade + 2% zoom) are inherited from DialogContent itself —
       we ONLY strip chrome here, so the palette shares the one modal scrim + motion
-      language instead of re-declaring its own. The close X is dropped
-      (show-close-button=false): a palette dismisses on Esc / outside-click / selection,
-      and a corner X both clashed with the search row and skipped the icon-button
-      contract. Width is held to a palette-friendly max-w-md.
+      language instead of re-declaring its own. A palette dismisses on Esc,
+      outside-click or selection. The compact picker instead owns a visible
+      title and the shared close button, with one narrower width rung.
     -->
     <DialogContent
       :show-close-button="false"
-      class="gap-0 border-0 bg-transparent p-0 shadow-none rounded-none sm:max-w-md"
+      class="gap-0 border-0 bg-transparent p-0 shadow-none rounded-none"
+      :class="variant === 'picker' ? 'sm:max-w-sm' : 'sm:max-w-md'"
     >
-      <DialogHeader class="sr-only">
+      <DialogHeader
+        v-if="variant === 'palette'"
+        class="sr-only"
+      >
         <DialogTitle>{{ title }}</DialogTitle>
         <DialogDescription>{{ description }}</DialogDescription>
       </DialogHeader>
@@ -49,7 +56,22 @@ const forwarded = useForwardPropsEmits(props, emits)
            hairline in dark mode, and NONE in light mode — a white palette already
            separates from the dark scrim by luminance, so a dark hairline there would
            just muddy the edge instead of sharpening it. -->
-      <Command class="border-[color:var(--border-menu-elevated)] shadow-[var(--shadow-modal)]">
+      <Command
+        class="border-[color:var(--border-menu-elevated)] shadow-[var(--shadow-modal)]"
+        :class="variant === 'picker' ? 'gap-3 p-4 [&_[data-slot=command-group]]:p-0' : undefined"
+      >
+        <DialogHeader
+          v-if="variant === 'picker'"
+          class="relative min-h-8 justify-center px-3 pr-10 text-left"
+        >
+          <DialogTitle class="text-control leading-5">
+            {{ title }}
+          </DialogTitle>
+          <DialogDescription v-if="description">
+            {{ description }}
+          </DialogDescription>
+          <DialogCloseButton class="top-0 right-0" />
+        </DialogHeader>
         <slot v-bind="slotProps" />
       </Command>
     </DialogContent>

@@ -12,15 +12,19 @@ import MenuScrollArea from '../menu-scroll-area/MenuScrollArea.vue'
 import { useSubmenuAlignment } from '../../lib/useSubmenuAlignment'
 import { cn } from '#/lib/utils'
 
-const props = defineProps<DropdownMenuSubContentProps & { class?: HTMLAttributes['class'] }>()
+const props = defineProps<DropdownMenuSubContentProps & {
+  class?: HTMLAttributes['class']
+  /** Information panels can align their top edge with the parent menu. */
+  alignment?: 'first-item' | 'parent-start'
+}>()
 const emits = defineEmits<DropdownMenuSubContentEmits>()
 
-const delegatedProps = reactiveOmit(props, 'class')
+const delegatedProps = reactiveOmit(props, 'class', 'alignment')
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 const menuArea = ref<InstanceType<typeof MenuScrollArea>>()
 const currentElement = computed(() => menuArea.value?.viewportElement?.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]') ?? undefined)
-const { alignOffset, ready } = useSubmenuAlignment(currentElement)
+const { alignOffset, ready } = useSubmenuAlignment(currentElement, () => props.alignment ?? 'first-item')
 // Start the entrance on a fresh frame after mounting and placement have settled.
 // Otherwise a long list can consume the animation before its first visible paint.
 const motionReady = ref(false)
