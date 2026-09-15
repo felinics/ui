@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { Component } from 'vue'
-import { CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { CheckIcon, CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 import { Button } from '#/components/button'
+import { CopyConnectedIcon } from '../copy-connected-icon'
 import { cn } from '#/lib/utils'
-import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastVariant } from './toast'
+import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastTextAction, type ToastVariant } from './toast'
 
 export type ToasterPosition =
   | 'top-right'
@@ -54,13 +55,50 @@ const isTop = computed(() => props.position.startsWith('top'))
 // the bottom for a bottom dock. The store is chronological; we only flip the view.
 const ordered = computed(() => (isTop.value ? [...toasts].reverse() : toasts))
 
+const actionStates = reactive(new Map<string, { action: ToastTextAction; phase: 'pending' | 'success' | 'failure' }>())
+const feedbackTimers = new Map<string, ReturnType<typeof setTimeout>>()
+let disposed = false
+
+function clearActionState(id: string) {
+  clearTimeout(feedbackTimers.get(id))
+  feedbackTimers.delete(id)
+  actionStates.delete(id)
+}
+
+function actionPhase(t: ToastRecord) {
+  const state = actionStates.get(t.id)
+  return state && state.action === t.textAction ? state.phase : undefined
+}
+
+async function runTextAction(t: ToastRecord) {
+  const action = t.textAction
+  if (!action || actionPhase(t) === 'pending') return
+  clearActionState(t.id)
+  actionStates.set(t.id, { action, phase: 'pending' })
+  let succeeded = false
+  try { succeeded = await action.onClick() } catch { /* The local failure label remains available for retry. */ }
+  if (disposed || toasts.find(current => current.id === t.id)?.textAction !== action) return
+  actionStates.set(t.id, { action, phase: succeeded ? 'success' : 'failure' })
+  if (succeeded) feedbackTimers.set(t.id, setTimeout(() => clearActionState(t.id), 1500))
+}
+
+watch(() => toasts.map(t => [t.id, t.textAction] as const), (current) => {
+  for (const [id, state] of actionStates) {
+    if (!current.some(([key, action]) => key === id && action === state.action)) clearActionState(id)
+  }
+})
+
 function onVisibilityChange() {
   if (document.hidden) pauseAll()
   else resumeAll()
 }
 
 onMounted(() => document.addEventListener('visibilitychange', onVisibilityChange))
-onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibilityChange))
+onBeforeUnmount(() => {
+  disposed = true
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  for (const id of actionStates.keys()) clearActionState(id)
+})
 </script>
 
 <template>
@@ -75,14 +113,14 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
         <!--
           Two layout variants — selected purely from data, no CSS hacks needed:
 
-          single  : no description, action optional  → flat row, everything center-aligned
-          rich    : has description                  → icon+× pin to first line (flex-start);
-                                                       body is a column: title → desc → action?
+          single  : no description/text action      → flat row, everything center-aligned
+          rich    : description or text action      → icon+× pin to first line (flex-start);
+                                                       text action sits below × in the right column
         -->
         <li
           v-for="t in ordered"
           :key="t.id"
-          :class="cn('memoh-toast', t.description ? 'memoh-toast--rich' : 'memoh-toast--single')"
+          :class="cn('memoh-toast', t.description || t.textAction ? 'memoh-toast--rich' : 'memoh-toast--single')"
           :data-variant="t.variant"
           role="status"
           aria-live="polite"
@@ -96,7 +134,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
                Everything in one flat row, vertically centered.
                icon · title · (action) · ×
           ──────────────────────────────────────────────────────────────────────── -->
-          <template v-if="!t.description">
+          <template v-if="!t.description && !t.textAction">
             <component
               :is="semanticIcon[t.variant]"
               v-if="semanticIcon[t.variant]"
@@ -124,11 +162,11 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
             </Button>
           </template>
 
-          <!-- ── RICH (has description) ─────────────────────────────────────────
+          <!-- ── RICH (has description or text action) ──────────────────────────
                icon and × pin to the top (first-line height).
                Action always goes BELOW the desc — never inline with the title.
                icon · title               · ×
-                       desc
+                       desc / ID          · (copy)
                        (action)
           ──────────────────────────────────────────────────────────────────────── -->
           <template v-else>
@@ -140,9 +178,28 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
             />
             <div class="memoh-toast__body">
               <span class="memoh-toast__title">{{ headingFor(t) }}</span>
-              <p class="memoh-toast__desc">
+              <p
+                v-if="t.description"
+                class="memoh-toast__desc"
+              >
                 {{ t.description }}
               </p>
+              <div
+                v-if="t.textAction"
+                class="min-w-0 text-body text-muted-foreground"
+              >
+                <span class="block min-w-0 select-text break-all whitespace-normal">{{ t.textAction.label }}</span>
+                <span
+                  v-if="actionPhase(t) === 'success'"
+                  role="status"
+                  class="sr-only"
+                >{{ t.textAction.successLabel }}</span>
+                <span
+                  v-else-if="actionPhase(t) === 'failure'"
+                  role="status"
+                  class="text-body"
+                >{{ t.textAction.failureLabel }}</span>
+              </div>
               <Button
                 v-if="t.action"
                 variant="outline"
@@ -153,15 +210,41 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
                 {{ t.action.label }}
               </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              class="memoh-toast__close memoh-toast__close--rich"
-              aria-label="Dismiss notification"
-              @click="dismiss(t.id)"
-            >
-              <XIcon class="size-4" />
-            </Button>
+            <div class="flex shrink-0 flex-col items-center">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                class="memoh-toast__close memoh-toast__close--rich"
+                aria-label="Dismiss notification"
+                @click="dismiss(t.id)"
+              >
+                <XIcon class="size-4" />
+              </Button>
+              <Button
+                v-if="t.textAction"
+                type="button"
+                variant="ghost"
+                tone="muted"
+                size="icon-sm"
+                :aria-label="t.textAction.ariaLabel"
+                :title="t.textAction.ariaLabel"
+                :aria-busy="actionPhase(t) === 'pending' || undefined"
+                @click="runTextAction(t)"
+              >
+                <CheckIcon
+                  v-if="actionPhase(t) === 'success'"
+                  class="size-[18px]"
+                  :stroke-width="1.75"
+                  aria-hidden="true"
+                />
+                <CopyConnectedIcon
+                  v-else
+                  class="size-[18px] -scale-x-100"
+                  :stroke-width="1.75"
+                  aria-hidden="true"
+                />
+              </Button>
+            </div>
           </template>
         </li>
       </TransitionGroup>

@@ -13,6 +13,15 @@ export interface ToastAction {
   onClick: () => void
 }
 
+export interface ToastTextAction {
+  label: string
+  ariaLabel?: string
+  /** A local action leaves the notification open and reports its own result. */
+  onClick: () => boolean | Promise<boolean>
+  successLabel: string
+  failureLabel: string
+}
+
 export interface ToastOptions {
   /** Secondary line under the title. */
   description?: string
@@ -20,6 +29,8 @@ export interface ToastOptions {
   duration?: number
   /** Optional trailing action button. */
   action?: ToastAction
+  /** Low-emphasis action under the message, independent of the trailing action. */
+  textAction?: ToastTextAction
   /** Stable id — re-using one updates the existing toast in place. */
   id?: string | number
 }
@@ -32,6 +43,7 @@ export interface ToastRecord {
   title: string
   description?: string
   action?: ToastAction
+  textAction?: ToastTextAction
   /** True when `title` is a synthesized variant heading (the long-blob auto-shape
    *  below), NOT caller copy. `<Toaster>` swaps it for a localized label when one
    *  is supplied via the `headings` prop; the English `title` here is the fallback. */
@@ -157,6 +169,7 @@ function create(variant: ToastVariant, message: string, options?: ToastOptions):
     title,
     description,
     action: options?.action,
+    textAction: options?.textAction,
     autoHeading,
   }
 
