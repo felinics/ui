@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { Component } from 'vue'
-import { CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { CheckIcon, CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 import { Button } from '#/components/button'
+import { TextButton } from '#/components/text-button'
 import { cn } from '#/lib/utils'
-import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastVariant } from './toast'
+import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastTextAction, type ToastVariant } from './toast'
 
 export type ToasterPosition =
   | 'top-right'
@@ -54,13 +55,50 @@ const isTop = computed(() => props.position.startsWith('top'))
 // the bottom for a bottom dock. The store is chronological; we only flip the view.
 const ordered = computed(() => (isTop.value ? [...toasts].reverse() : toasts))
 
+const actionStates = reactive(new Map<string, { action: ToastTextAction; phase: 'pending' | 'success' | 'failure' }>())
+const feedbackTimers = new Map<string, ReturnType<typeof setTimeout>>()
+let disposed = false
+
+function clearActionState(id: string) {
+  clearTimeout(feedbackTimers.get(id))
+  feedbackTimers.delete(id)
+  actionStates.delete(id)
+}
+
+function actionPhase(t: ToastRecord) {
+  const state = actionStates.get(t.id)
+  return state && state.action === t.textAction ? state.phase : undefined
+}
+
+async function runTextAction(t: ToastRecord) {
+  const action = t.textAction
+  if (!action || actionPhase(t) === 'pending') return
+  clearActionState(t.id)
+  actionStates.set(t.id, { action, phase: 'pending' })
+  let succeeded = false
+  try { succeeded = await action.onClick() } catch { /* The local failure label remains available for retry. */ }
+  if (disposed || toasts.find(current => current.id === t.id)?.textAction !== action) return
+  actionStates.set(t.id, { action, phase: succeeded ? 'success' : 'failure' })
+  if (succeeded) feedbackTimers.set(t.id, setTimeout(() => clearActionState(t.id), 1500))
+}
+
+watch(() => toasts.map(t => [t.id, t.textAction] as const), (current) => {
+  for (const [id, state] of actionStates) {
+    if (!current.some(([key, action]) => key === id && action === state.action)) clearActionState(id)
+  }
+})
+
 function onVisibilityChange() {
   if (document.hidden) pauseAll()
   else resumeAll()
 }
 
 onMounted(() => document.addEventListener('visibilitychange', onVisibilityChange))
-onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibilityChange))
+onBeforeUnmount(() => {
+  disposed = true
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  for (const id of actionStates.keys()) clearActionState(id)
+})
 </script>
 
 <template>
@@ -75,14 +113,14 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
         <!--
           Two layout variants — selected purely from data, no CSS hacks needed:
 
-          single  : no description, action optional  → flat row, everything center-aligned
-          rich    : has description                  → icon+× pin to first line (flex-start);
-                                                       body is a column: title → desc → action?
+          single  : no description/text action      → flat row, everything center-aligned
+          rich    : description or text action      → icon+× pin to first line (flex-start);
+                                                       body is a column: title → desc? → text action? → action?
         -->
         <li
           v-for="t in ordered"
           :key="t.id"
-          :class="cn('memoh-toast', t.description ? 'memoh-toast--rich' : 'memoh-toast--single')"
+          :class="cn('memoh-toast', t.description || t.textAction ? 'memoh-toast--rich' : 'memoh-toast--single')"
           :data-variant="t.variant"
           role="status"
           aria-live="polite"
@@ -96,7 +134,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
                Everything in one flat row, vertically centered.
                icon · title · (action) · ×
           ──────────────────────────────────────────────────────────────────────── -->
-          <template v-if="!t.description">
+          <template v-if="!t.description && !t.textAction">
             <component
               :is="semanticIcon[t.variant]"
               v-if="semanticIcon[t.variant]"
@@ -140,9 +178,40 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
             />
             <div class="memoh-toast__body">
               <span class="memoh-toast__title">{{ headingFor(t) }}</span>
-              <p class="memoh-toast__desc">
+              <p
+                v-if="t.description"
+                class="memoh-toast__desc"
+              >
                 {{ t.description }}
               </p>
+              <div
+                v-if="t.textAction"
+                class="flex min-w-0 flex-wrap items-center gap-1"
+              >
+                <TextButton
+                  type="button"
+                  class="min-w-0 max-w-full text-caption"
+                  :aria-label="t.textAction.ariaLabel"
+                  :aria-busy="actionPhase(t) === 'pending' || undefined"
+                  @click="runTextAction(t)"
+                >
+                  <span class="min-w-0 break-all whitespace-normal text-left">{{ t.textAction.label }}</span>
+                  <CheckIcon
+                    v-if="actionPhase(t) === 'success'"
+                    aria-hidden="true"
+                  />
+                </TextButton>
+                <span
+                  v-if="actionPhase(t) === 'success'"
+                  role="status"
+                  class="sr-only"
+                >{{ t.textAction.successLabel }}</span>
+                <span
+                  v-else-if="actionPhase(t) === 'failure'"
+                  role="status"
+                  class="text-caption"
+                >{{ t.textAction.failureLabel }}</span>
+              </div>
               <Button
                 v-if="t.action"
                 variant="outline"
