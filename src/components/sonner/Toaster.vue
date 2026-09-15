@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 import { CheckIcon, CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 import { Button } from '#/components/button'
-import { TextButton } from '../text-button'
+import { CopyConnectedIcon } from '../copy-connected-icon'
 import { cn } from '#/lib/utils'
 import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastTextAction, type ToastVariant } from './toast'
 
@@ -115,7 +115,7 @@ onBeforeUnmount(() => {
 
           single  : no description/text action      → flat row, everything center-aligned
           rich    : description or text action      → icon+× pin to first line (flex-start);
-                                                       body is a column: title → desc? → text action? → action?
+                                                       text action sits below × in the right column
         -->
         <li
           v-for="t in ordered"
@@ -162,11 +162,11 @@ onBeforeUnmount(() => {
             </Button>
           </template>
 
-          <!-- ── RICH (has description) ─────────────────────────────────────────
+          <!-- ── RICH (has description or text action) ──────────────────────────
                icon and × pin to the top (first-line height).
                Action always goes BELOW the desc — never inline with the title.
                icon · title               · ×
-                       desc
+                       desc / ID          · (copy)
                        (action)
           ──────────────────────────────────────────────────────────────────────── -->
           <template v-else>
@@ -186,21 +186,9 @@ onBeforeUnmount(() => {
               </p>
               <div
                 v-if="t.textAction"
-                class="flex min-w-0 flex-wrap items-center gap-1"
+                class="min-w-0 text-body text-muted-foreground"
               >
-                <TextButton
-                  type="button"
-                  class="min-w-0 max-w-full text-caption"
-                  :aria-label="t.textAction.ariaLabel"
-                  :aria-busy="actionPhase(t) === 'pending' || undefined"
-                  @click="runTextAction(t)"
-                >
-                  <span class="min-w-0 break-all whitespace-normal text-left">{{ t.textAction.label }}</span>
-                  <CheckIcon
-                    v-if="actionPhase(t) === 'success'"
-                    aria-hidden="true"
-                  />
-                </TextButton>
+                <span class="block min-w-0 select-text break-all whitespace-normal">{{ t.textAction.label }}</span>
                 <span
                   v-if="actionPhase(t) === 'success'"
                   role="status"
@@ -209,7 +197,7 @@ onBeforeUnmount(() => {
                 <span
                   v-else-if="actionPhase(t) === 'failure'"
                   role="status"
-                  class="text-caption"
+                  class="text-body"
                 >{{ t.textAction.failureLabel }}</span>
               </div>
               <Button
@@ -222,15 +210,41 @@ onBeforeUnmount(() => {
                 {{ t.action.label }}
               </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              class="memoh-toast__close memoh-toast__close--rich"
-              aria-label="Dismiss notification"
-              @click="dismiss(t.id)"
-            >
-              <XIcon class="size-4" />
-            </Button>
+            <div class="flex shrink-0 flex-col items-center">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                class="memoh-toast__close memoh-toast__close--rich"
+                aria-label="Dismiss notification"
+                @click="dismiss(t.id)"
+              >
+                <XIcon class="size-4" />
+              </Button>
+              <Button
+                v-if="t.textAction"
+                type="button"
+                variant="ghost"
+                tone="muted"
+                size="icon-sm"
+                :aria-label="t.textAction.ariaLabel"
+                :title="t.textAction.ariaLabel"
+                :aria-busy="actionPhase(t) === 'pending' || undefined"
+                @click="runTextAction(t)"
+              >
+                <CheckIcon
+                  v-if="actionPhase(t) === 'success'"
+                  class="size-[18px]"
+                  :stroke-width="1.75"
+                  aria-hidden="true"
+                />
+                <CopyConnectedIcon
+                  v-else
+                  class="size-[18px] -scale-x-100"
+                  :stroke-width="1.75"
+                  aria-hidden="true"
+                />
+              </Button>
+            </div>
           </template>
         </li>
       </TransitionGroup>
