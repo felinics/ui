@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 import { CheckIcon, CircleCheckIcon, CircleXIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 import { Button } from '#/components/button'
-import { TextButton } from '#/components/text-button'
+import { TextButton } from '../text-button'
 import { cn } from '#/lib/utils'
 import { dismiss, pauseAll, resumeAll, toast as toastApi, toasts, type ToastRecord, type ToastTextAction, type ToastVariant } from './toast'
 
