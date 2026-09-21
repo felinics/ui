@@ -55,15 +55,21 @@ const props = withDefaults(defineProps<DialogContentProps & {
   viewSwap?: boolean
   /** Reserve a third grid row for a DialogFooter. */
   footer?: boolean
+  /** Override the built-in corner close. Omit to inherit the mode default
+   *  (on, except view-swap). Set false when the panel renders its OWN dismiss
+   *  — e.g. a header that gives the close its own row, because the built-in
+   *  one is absolutely positioned and would sit on top of a wrapping title. */
+  showCloseButton?: boolean
 }>(), {
   width: undefined,
   grow: false,
   viewSwap: false,
   footer: false,
+  showCloseButton: undefined,
 })
 const emits = defineEmits<DialogContentEmits>()
 
-const delegatedProps = reactiveOmit(props, 'class', 'width', 'grow', 'viewSwap', 'footer')
+const delegatedProps = reactiveOmit(props, 'class', 'width', 'grow', 'viewSwap', 'footer', 'showCloseButton')
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
 // Full literal strings (not interpolation) so Tailwind's scanner sees them.
@@ -87,7 +93,7 @@ const effectiveWidth = computed(() => props.width ?? (props.viewSwap ? 'xl' : '2
 <template>
   <DialogContent
     v-bind="{ ...$attrs, ...forwarded }"
-    :show-close-button="!viewSwap"
+    :show-close-button="showCloseButton ?? !viewSwap"
     :class="cn(
       grow ? 'h-[80dvh]' : 'max-h-[80dvh]',
       footer ? 'grid-rows-[auto_minmax(0,1fr)_auto]' : 'grid-rows-[auto_minmax(0,1fr)]',
