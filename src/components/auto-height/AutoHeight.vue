@@ -28,7 +28,10 @@ let observer: ResizeObserver | null = null
 
 function measure() {
   const content = inner.value
-  if (!content) return
+  // A subtree that isn't rendered — detached by a KeepAlive deactivation, or under
+  // display:none — measures 0. Keeping that 0 would make re-activation tween up
+  // from nothing instead of resuming at the height it left with, so skip it.
+  if (!content || content.getClientRects().length === 0) return
   height.value = `${content.offsetHeight}px`
 }
 
