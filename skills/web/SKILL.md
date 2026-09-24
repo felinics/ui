@@ -42,6 +42,25 @@ the *how*; these are the *must*.
    drifts out of the token contract and reads inconsistent page to page. If a layout repeats,
    extract it into one shared component instead of pasting it twice. A genuinely new component
    is a last resort — clear it with the developer *before* building it.
+   **Verify the component's source, not just its name or appearance.** A third-party
+   renderer's built-in Tooltip is not Memoh's Tooltip. For existing UI primitives,
+   confirm the import and implementation resolve to `@felinic/ui` before editing.
+   Do not fix a slow browser `title` hint by enabling a renderer's private tooltip;
+   use the shared `Tooltip` / `TooltipTrigger` / `TooltipContent` and its provider.
+   Disable competing renderer hints and the native `title` fallback so only one
+   tooltip appears. Check provider availability in detached renderer roots, and
+   verify that component-level settings are not overridden by ancestor injection.
+   **Check these integrations at three points:** trace the actual owner before
+   editing; inspect the final wiring and DOM after editing; then exercise the
+   running page before delivery. For tooltips, repeat pointer entry/exit and
+   keyboard focus, check appearance and dismissal timing, and wait long enough
+   to rule out a second native hint. Recheck after any corrective edit. A screenshot
+   alone cannot prove timing, and a passing test cannot prove component identity.
+   For icon-bearing inline actions, inspect vertical alignment, icon-to-label
+   spacing, and both outer text gaps separately; the icon should group with its
+   label more tightly than with surrounding prose. Check normal text, adjacent
+   punctuation and wrapping, not only an isolated link. Report only the states
+   actually checked; do not claim verification from a configured delay alone.
    **The component system is not modelling clay.** `SettingsSection` / `SettingsRow` / the cards
    are not a blank canvas you reshape to taste — each has *one* sanctioned use, and you compose
    *with* them, you do not knead them into a new shape. The tell that you've started treating the
