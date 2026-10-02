@@ -7,7 +7,7 @@
        doesn't jump. -->
   <div
     data-slot="metric-readout"
-    :class="[framed ? 'flex min-h-[4.375rem] flex-col rounded-menu-shell border border-border bg-card p-3' : 'flex flex-col', framed && !bordered && 'dark:border-0']"
+    :class="framed ? ['flex min-h-[4.375rem] flex-col rounded-menu-shell bg-card p-3', surfaceEdgeClass(bordered)] : 'flex flex-col'"
   >
     <!-- tracking-tight:紧凑指标标签的原有字距(context-card 8 块原样如此),
          统一后 bot-overview 的标签一并收紧。 -->
@@ -64,6 +64,7 @@
 //   rounded-menu-shell, status value text-sm → text-control.
 // Dark framed tiles follow SettingsSection; bordered preserves nested boundaries.
 import { computed } from 'vue'
+import { surfaceEdgeClass } from '#/lib/surface'
 
 const props = withDefaults(defineProps<{
   label: string

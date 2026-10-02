@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
+import { surfaceEdgeClass } from '#/lib/surface'
 import { cn } from '#/lib/utils'
 
 const props = defineProps<{
@@ -12,8 +13,8 @@ const props = defineProps<{
 <template>
   <div
     data-slot="table-container"
-    class="relative w-full overflow-auto rounded-lg border border-border bg-card"
-    :class="!bordered && 'dark:border-0'"
+    class="relative w-full overflow-auto rounded-lg bg-card"
+    :class="surfaceEdgeClass(bordered)"
   >
     <table
       data-slot="table"

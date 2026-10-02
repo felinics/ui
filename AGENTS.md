@@ -500,7 +500,15 @@ doubt, default to gray. (Like purple-scarcity, this is a judgment rule — loud
 high-contrast chrome is rationed, not guard-enforced.)
 
 Whether a surface even HAS a border is a CONTRAST decision: a Card / dropdown over
-the page gets one; a modal over the dark scrim uses `--border-menu-elevated` =
+the page gets one in light mode. In dark mode a card-colored surface (Card,
+SettingsSection, SurfaceCard, Table, BackendCard, framed MetricReadout,
+ActionCard, entity PersonaTile) drops its structural edge: the bg-card fill already separates it
+from the page, and a light hairline on top reads as stacked chrome. The rule
+lives once, in `src/lib/surface.ts` (`surfaceEdgeClass`); every card owner
+composes it and exposes `bordered` to keep the edge when nested inside another
+card-colored surface. A new card owner composes it too — never a local
+`dark:border-0`. Hosts compose SurfaceCard rather than hand-writing
+`rounded-… border bg-card`; a modal over the dark scrim uses `--border-menu-elevated` =
 NO border in light (a white panel + scrim + shadow already separate; a dark
 hairline the same darkness as the scrim only muddies it) and a white hairline in
 dark. Tooltip carries no border at all — its solid fill is its own edge.

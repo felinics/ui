@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="group/tile relative flex w-52 cursor-pointer flex-col items-center rounded-menu-shell border border-border p-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+    class="group/tile relative flex w-52 cursor-pointer flex-col items-center rounded-menu-shell p-5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
     :class="surfaceClass"
   >
     <!-- Corner status: entry-only, and present only when the tile has something
@@ -42,6 +42,7 @@
 //   original (dimmer disabled state).
 // Everything else is byte-identical to the host original.
 import { computed } from 'vue'
+import { surfaceEdgeClass } from '#/lib/surface'
 
 const props = withDefaults(defineProps<{
   name: string
@@ -55,9 +56,12 @@ const props = withDefaults(defineProps<{
 // `entity` rests on the card and deepens with the neutral overlay (bg-accent →
 // --ui-hover), scheme-agnostic with no dark: override. Both are the tile's own
 // chrome, so they carry the sanctioned escape hatch.
+// Edge: `entity` is a card-colored surface and follows the shared dark-mode
+// rule (no edge in dark). `add` rests on the canvas color, so its edge is the
+// only thing outlining it in dark and stays in both schemes.
 const surfaceClass = computed(() =>
   props.variant === 'add'
-    ? 'bg-background text-muted-foreground hover:bg-card' /* ui-allow-style */
-    : 'bg-card hover:bg-accent', /* ui-allow-style */
+    ? ['bg-background text-muted-foreground hover:bg-card', 'border'] /* ui-allow-style */
+    : ['bg-card hover:bg-accent', surfaceEdgeClass()], /* ui-allow-style */
 )
 </script>

@@ -3,6 +3,7 @@ import type { PrimitiveProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import { Primitive } from 'reka-ui'
 import { ChevronRight } from 'lucide-vue-next'
+import { surfaceEdgeClass } from '#/lib/surface'
 import { cn } from '#/lib/utils'
 
 // ActionCard — a clickable card whose meaning is ACTION / going somewhere next,
@@ -84,9 +85,9 @@ const props = withDefaults(defineProps<PrimitiveProps & {
     :as="as"
     :as-child="asChild"
     :class="cn(
-      'group/action relative isolate flex w-full min-h-[3rem] items-center gap-3 border bg-card px-4 py-3.5 text-left',
+      'group/action relative isolate flex w-full min-h-[3rem] items-center gap-3 bg-card px-4 py-3.5 text-left',
       'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
-      !bordered && 'dark:border-0',
+      surfaceEdgeClass(bordered),
       props.class,
     )"
   >

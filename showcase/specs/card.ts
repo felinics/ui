@@ -23,9 +23,9 @@ export const cardSpec: ComponentSpec = {
   id: 'card',
   name: 'Card',
   description:
-    'A static surface that groups related content: bg-card fill, one border-border hairline, card radius, deliberately no shadow. Composed from Header/Title/Description/Action/Content/Footer.',
+    'A static surface that groups related content: bg-card fill, one border-border hairline in light mode (dropped in dark unless `bordered`), card radius, deliberately no shadow. Composed from Header/Title/Description/Action/Content/Footer.',
   descriptionZh:
-    '分组相关内容的静态表面:bg-card 填充、一道 border-border 发丝描边、卡片圆角,刻意无阴影。由 Header/Title/Description/Action/Content/Footer 组合。',
+    '分组相关内容的静态表面:bg-card 填充、浅色下一道 border-border 发丝描边(深色下去掉,`bordered` 时保留)、卡片圆角,刻意无阴影。由 Header/Title/Description/Action/Content/Footer 组合。',
   controls: [
     { kind: 'string', key: 'title', label: 'Title', default: 'Storage usage' },
     { kind: 'boolean', key: 'withDescription', label: 'Description', default: true },
