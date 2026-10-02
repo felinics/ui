@@ -90,6 +90,22 @@ A grey section label above a bordered white card. Props: `title`. Slots: `#actio
 Save/Cancel or pagination — rendered *inside* the card with a top hairline). A card is a
 `SettingsSection`; you never hand-roll `rounded-… border bg-card`.
 
+**SurfaceCard** · `@felinic/ui` (`src/components/settings`) — the same card shell
+as SettingsSection, for a body that is NOT settings rows: a plan / quota summary,
+a page identity header (icon + name + enable switch), a list container whose rows
+carry their own inset. Props: `padding: 'none' | 'row' | 'lg'` (default `lg` = p-5;
+`row` = px-4 py-3; `none` clips content to the radius), `bordered`, `as` / `asChild`.
+The caller only arranges its content (`class="flex items-center gap-3"`); radius,
+fill, edge and padding are the owner's. Hand-writing `rounded-… border border-border
+bg-card` instead is how pages miss the dark-mode edge rule (§ Borders in
+`packages/ui/AGENTS.md`).
+
+**Dark-mode card edge.** Every card owner (SettingsSection, SurfaceCard, Table,
+BackendCard, framed MetricReadout, ActionCard, Card, entity PersonaTile) drops its structural edge in
+dark mode — the bg-card fill already separates from the page. Pass `bordered`
+when the card sits inside another card-colored surface (a dialog body, a card
+within a card) so the boundary stays visible there.
+
 **SectionGroup** · `section-group/index.vue` — a re-export shim; the
 implementation lives in `@felinic/ui` (`src/components/settings`), shared
 with the component showcase. Import new call sites from `@felinic/ui`.
