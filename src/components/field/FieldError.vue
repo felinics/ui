@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
-import { CircleAlert } from 'lucide-vue-next'
+import { ErrorIcon } from '@memohai/icon/ui'
 import { inject, onBeforeUnmount, onMounted } from 'vue'
 import { cn } from '#/lib/utils'
 import { FIELD_INJECTION_KEY } from './context'
@@ -34,7 +34,7 @@ onBeforeUnmount(() => {
       props.class,
     )"
   >
-    <CircleAlert class="size-3.5 shrink-0" />
+    <ErrorIcon class="size-3.5 shrink-0" />
     <slot />
   </p>
 </template>

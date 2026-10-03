@@ -1165,7 +1165,7 @@
      call sites (see --muted-soft above for why color-mix, not a literal). */
   --destructive-soft: color-mix(in oklab, var(--destructive) 5%, transparent);
   --destructive-border: color-mix(in oklab, var(--destructive) 30%, transparent);
-  --destructive-soft-hover: color-mix(in oklab, var(--destructive) 14%, transparent);
+  --destructive-soft-hover: color-mix(in oklab, var(--destructive) 18%, transparent);
   --destructive-border-hover: color-mix(in oklab, var(--destructive) 45%, transparent);
   --border: oklch(0.915 0.0045 72);
   /* Alpha policy: the soft/faint divider and card-edge rung — same color-mix
