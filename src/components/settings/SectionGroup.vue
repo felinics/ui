@@ -24,6 +24,11 @@ import PageHeader from './PageHeader.vue'
 // on a documentation spine can never drift from the page header it mirrors.
 // Wins over `tone`.
 //
+// The muted tier also takes SettingsSection's header geometry (min-h-7, sized
+// for a trailing button): a muted group usually sits between settings cards
+// on one page, and a shorter header there shifts its body 10px off the
+// cards' rhythm.
+//
 // bare: the body carries NO bordered surface of its own (plain text, a row
 // of buttons, a matrix). The px-2 title inset exists to offset a title from
 // the CARD beneath it — with no card there is nothing to offset, so title,
@@ -46,6 +51,10 @@ const props = withDefaults(defineProps<{
   bare: false,
 })
 
+const headerClass = computed(() =>
+  props.tone === 'muted' && !props.heading ? 'min-h-7' : '',
+)
+
 const titleClass = computed(() =>
   `text-label font-medium ${props.tone === 'muted' ? 'text-muted-foreground' : 'text-foreground'}`,
 )
@@ -56,6 +65,7 @@ const titleClass = computed(() =>
     <div
       v-if="title || description || $slots.actions"
       class="flex items-center justify-between gap-4"
+      :class="headerClass"
     >
       <PageHeader
         v-if="heading && (title || description)"
