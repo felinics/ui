@@ -41,7 +41,12 @@ const rootClass = computed(() =>
 
 <template>
   <div :class="rootClass">
+    <!-- No title/description/actions → render NO header block at all. A framed
+         PageHeader is min-h-9 + mb-6, so an empty one still eats 60px between a
+         tab rail and the body — title-less tab panels (the Providers container
+         owns their H1) would show a blank band. -->
     <PageHeader
+      v-if="title || description || $slots.actions"
       :title="title"
       :description="description"
       :level="1"
