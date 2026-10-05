@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
-import { CircleAlert } from 'lucide-vue-next'
+import { ErrorIcon } from '@memohai/icon/ui'
 import { ErrorMessage } from 'vee-validate'
 import { toValue } from 'vue'
 import { cn } from '#/lib/utils'
@@ -25,7 +25,7 @@ const { name, formMessageId } = useFormField()
       props.class,
     )"
   >
-    <CircleAlert class="size-3.5 shrink-0" />
+    <ErrorIcon class="size-3.5 shrink-0" />
     <span>{{ message }}</span>
   </ErrorMessage>
 </template>

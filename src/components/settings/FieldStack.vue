@@ -53,7 +53,7 @@
         :name="fieldName"
         class="text-destructive flex items-center gap-1.5 text-label leading-snug"
       >
-        <CircleAlert class="size-3.5 shrink-0" />
+        <ErrorIcon class="size-3.5 shrink-0" />
         <span>{{ message }}</span>
       </ErrorMessage>
     </div>
@@ -65,7 +65,7 @@
       :name="fieldName"
       class="text-destructive flex items-center gap-1.5 text-label leading-snug"
     >
-      <CircleAlert class="size-3.5 shrink-0" />
+      <ErrorIcon class="size-3.5 shrink-0" />
       <span>{{ message }}</span>
     </ErrorMessage>
   </div>
@@ -80,7 +80,7 @@
 //   (FORM_ITEM_INJECTION_KEY);
 // - token rename: help text text-xs → text-body.
 // Everything else is byte-identical to the host original.
-import { CircleAlert } from 'lucide-vue-next'
+import { ErrorIcon } from '@memohai/icon/ui'
 import { ErrorMessage, FieldContextKey } from 'vee-validate'
 import { computed, inject, provide, toValue, useId } from 'vue'
 import { FORM_ITEM_INJECTION_KEY } from '../form'

@@ -241,9 +241,17 @@ A **vertical, centered** entity/add tile (`w-52 flex-col items-center`). Props: 
 counterpart to the horizontal BackendCard — do not confuse them.
 
 **CalloutBanner** · `callout-banner/index.vue`
-A framed warning / destructive notice. Props: `tone: 'warning' | 'destructive'`, `title`,
-`description`, `clickable` (whole surface becomes a button with a lead-in chevron). Slots:
-`#icon`, default (trailing action).
+The ONE notice surface: every error, warning or neutral info box (dialog errors, page
+load failures, chat-transcript error/notice blocks, composer dock errors). Props:
+`tone: 'neutral' | 'warning' | 'destructive'` (per-tone default icon), `title` (optional —
+a description-only notice promotes the message to the first-line rung), `description`,
+`size: 'default' | 'sm'` (sm = text-label / 14px icon for dense hosts such as the chat
+transcript), `bare` (drop the frame when the host already owns the surface, e.g. a composer
+capsule section — the host supplies the inset), `clickable` (whole surface becomes a button
+with a lead-in chevron). Slots: `#icon`, `#details` (raw backend error / IDs, mono caption),
+default (trailing actions). The icon slot is a `h-lh` line box on the first line's type rung,
+so never add `mt-*` to align it. Replaces the legacy `Alert`; never hand-write a tinted
+`border-destructive/… bg-destructive/…` box.
 
 ### Loading & placeholder (the four-rung ladder)
 
@@ -405,7 +413,7 @@ Several titled groups of bare (self-bordered)
 A stacked form field (label above control)?     → FieldStack (wrap a run in FormStack)
 A stat / number tile?                           → MetricReadout (you own the grid)
 A vertical, centered entity/add tile?           → PersonaTile
-A warning / destructive framed notice?          → CalloutBanner
+An error / warning / info notice?               → CalloutBanner (bare inside a host surface)
 A device-code "enter this code" moment?         → DeviceCodePanel
 A label that swaps with state (Connect↔Cancel)? → LabelSwap (@felinic/ui)
 The page frame itself?                          → PageShell

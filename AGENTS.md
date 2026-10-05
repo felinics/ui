@@ -291,7 +291,8 @@ peers", not "one door to somewhere else".
   PinInput, InputOTP, TagsInput (mid-refactor — their pre-refactor code is a
   textbook § Dirty patterns exhibit; check it in git, do not copy the in-flight
   state).
-- **Legacy (do NOT use as reference):** Badge, Alert (semantic fills) — and any
+- **Legacy (do NOT use as reference):** Badge, Alert (semantic fills; deprecated —
+  compose `CalloutBanner` for any notice, see skills/ui-owners) — and any
   component not listed as Reference above. When in doubt, ask; do not
   pattern-match off legacy.
 - **`components/sidebar/` (do NOT copy its styling):** the entire directory (23
