@@ -19,7 +19,9 @@
 // - width:   panel width rung. Defaults are MODE-SCOPED (see effectiveWidth):
 //   2xl for workbench, xl for view-swap; 'lg' for a one-or-two-field form
 //   (a 2xl panel around one field reads barren); '3xl' for editor-heavy
-//   bodies (Monaco import).
+//   bodies (Monaco import); '4xl' for a two-column body — a history rail
+//   beside the working pane (the feedback dialog), where 3xl minus the rail
+//   leaves the working pane too narrow to read a conversation.
 // - grow:    false (default) → max-h-[80dvh], panel hugs its content and the
 //   cap only bites when content is tall. true → h-[80dvh] fixed — required
 //   when the body has NO intrinsic height (an editor/iframe that must be
@@ -47,7 +49,7 @@ const props = withDefaults(defineProps<DialogContentProps & {
   class?: HTMLAttributes['class']
   /** Panel width rung. Add rungs here deliberately — not per-page.
    *  Omit to inherit the mode default: 2xl workbench · xl view-swap. */
-  width?: 'lg' | 'xl' | '2xl' | '3xl'
+  width?: 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
   /** Fixed 80dvh height for bodies with no intrinsic height (editors). */
   grow?: boolean
   /** View-swap dialog: header is a DialogViewHeader, so the built-in corner
@@ -78,6 +80,7 @@ const WIDTH = {
   'xl': 'sm:max-w-xl',
   '2xl': 'sm:max-w-2xl',
   '3xl': 'sm:max-w-3xl',
+  '4xl': 'sm:max-w-4xl',
 } as const
 
 // Mode-scoped default width (only when the caller omits `width`):
