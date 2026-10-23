@@ -38,13 +38,11 @@
           <CopyAnimatedCheckIcon
             v-if="copied"
             :class="iconClass"
-            :stroke-width="1.75"
           />
           <!-- Mirrored so the stacked squares read top-left over bottom-right. -->
           <CopyConnectedIcon
             v-else
             :class="[iconClass, '-scale-x-100']"
-            :stroke-width="1.75"
           />
         </span>
       </Transition>

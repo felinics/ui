@@ -7,7 +7,7 @@ import {
   DropdownMenuSubTrigger,
   useForwardProps,
 } from 'reka-ui'
-import { menuIndicatorStrokeWidth, menuItemClass } from '#/lib/menu'
+import { menuItemClass } from '#/lib/menu'
 import { cn } from '#/lib/utils'
 
 const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'], inset?: boolean }>()
@@ -27,9 +27,6 @@ const forwardedProps = useForwardProps(delegatedProps)
     )"
   >
     <slot />
-    <ChevronRight
-      :stroke-width="menuIndicatorStrokeWidth"
-      class="ml-auto size-4"
-    />
+    <ChevronRight class="ml-auto size-4" />
   </DropdownMenuSubTrigger>
 </template>
