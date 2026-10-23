@@ -234,13 +234,11 @@ onBeforeUnmount(() => {
                 <CheckIcon
                   v-if="actionPhase(t) === 'success'"
                   class="size-[18px]"
-                  :stroke-width="1.75"
                   aria-hidden="true"
                 />
                 <CopyConnectedIcon
                   v-else
                   class="size-[18px] -scale-x-100"
-                  :stroke-width="1.75"
                   aria-hidden="true"
                 />
               </Button>
