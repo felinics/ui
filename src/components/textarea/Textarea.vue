@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
+import type { TextareaEngage, TextareaSurface } from '.'
 import { useVModel } from '@vueuse/core'
 import { computed } from 'vue'
 import { cn } from '#/lib/utils'
@@ -9,8 +10,20 @@ const props = withDefaults(defineProps<{
   defaultValue?: string | number
   modelValue?: string | number
   size?: 'sm' | 'default' | 'lg'
+  // When the edge engages:
+  //  - 'focus' (default): focus only — the field contract for every form field
+  //  - 'hover': hover as well as focus, for an in-place editor that wears the
+  //    exact look of the content it replaced and so has no other sign of being
+  //    a field until the pointer is on it
+  engage?: TextareaEngage
+  // The surface the field is painted on, which picks the solid edge that reads
+  // against it: 'plain' (default) or 'brand-tint' (--field-edge-brand-tint).
+  // The fill itself stays the caller's.
+  surface?: TextareaSurface
 }>(), {
   size: 'default',
+  engage: 'focus',
+  surface: 'plain',
 })
 
 const emits = defineEmits<{
@@ -34,6 +47,8 @@ const sizeClass = computed(() => ({
     v-model="modelValue"
     data-slot="textarea"
     :data-size="props.size"
+    :data-engage="props.engage === 'hover' ? 'hover' : undefined"
+    :data-surface="props.surface === 'brand-tint' ? 'brand-tint' : undefined"
     :class="cn(
       'flex field-sizing-content w-full rounded-md tracking-[0.01em] text-foreground',
       sizeClass,

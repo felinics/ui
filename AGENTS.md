@@ -224,6 +224,16 @@ which silently leaves the SVG at its 24px intrinsic size.)
 of hand-rolling a hover on text. For an underlined inline link inside running
 prose use `variant="link"`; for a control-sized action use a normal `<Button>`.
 
+### "An ⓘ that only explains" = `<InfoHint text="…">`
+
+A glyph whose whole job is to reveal a short explanation is NOT an action, so it
+is not an icon `<Button>` (no hover chip, no pointer cursor) and not a
+hand-rolled span. `<InfoHint>` is a muted 12px Info glyph (the text rung of the
+icon ladder — it sits beside text-scale labels) that opens a Tooltip on hover or
+keyboard focus, upward by default (`side`). The text doubles as the glyph's
+accessible name. Tooltip rules still apply: supplementary information only, as
+it is unreachable on touch.
+
 ### "A card that DOES something / goes somewhere" = `<ActionCard>`
 
 The recurring need to offer an **entry point** — a card that, when clicked, takes
@@ -332,7 +342,8 @@ peers", not "one door to somewhere else".
   ramp (`--btn-primary` → `-hover` → `-active`); `variant="default"`/`"primary"`
   use it. Brand purple (`--brand`) is the SCARCE accent — it ships only via
   `<Button variant="brand">` (rare brand CTAs like chat Send) and a handful of
-  reserved tokens (`--sidebar-primary`, capability/event accents). Never make
+  reserved tokens (`--sidebar-primary`, capability/event accents, the dark
+  `--field-edge-brand-tint`). Never make
   purple a default surface or a large fill; the skeleton stays black/white/gray.
 - **Destructive is filled, not ghost.** `variant="destructive"` renders a solid
   `bg-destructive text-destructive-foreground` button — a filled red CTA. Never
@@ -368,6 +379,16 @@ peers", not "one door to somewhere else".
   hairline whose color swaps per state (never an outer ring):
   `--field-edge-rest` → `--field-edge-solid` (focus) / `--field-edge-engaged`
   (subtle) / `--destructive` (invalid).
+  - The one exception is opt-in: `<Textarea engage="hover">` also engages under
+    the pointer, with the same `--field-edge-solid`. It is for an in-place
+    editor that wears the exact look of the content it replaced (the chat
+    prompt edited inside its own bubble) — the edge is its only sign of being a
+    field. Forms and ordinary fields never use it.
+  - A Textarea painted on a brand-tinted surface (that same bubble) declares it
+    with `surface="brand-tint"`: its solid edge becomes `--field-edge-brand-tint`
+    — the neutral near-black in light (a brand edge muddies into a pale tint),
+    `--brand` in dark (the neutral gray sinks into a deep tint). Rest and
+    invalid are unchanged. Never pick an edge color per call site.
 - **Focus ring** is `--ring` via `focus-visible:ring-2 ring-ring/<alpha>` (or the
   segmented's 2px-track + 4px-ring inset). Keyboard focus only — not a resting
   border. Controls that keep DOM focus after a mouse action (Select trigger,

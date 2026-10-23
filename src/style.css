@@ -220,6 +220,19 @@
   [data-slot="input-otp-slot"][data-active="true"] {
     --field-edge: var(--field-edge-solid);
   }
+  /* The one hover exception: Textarea engage="hover" — an in-place editor that
+     wears the exact look of the content it replaced, so the edge is its only
+     sign of being a field and the pointer gets that sign before clicking in.
+     Same edge as focus; every other field stays focus-only. Invalid still wins. */
+  [data-slot="textarea"][data-engage="hover"]:hover:not(:disabled, [aria-invalid="true"]) {
+    --field-edge: var(--field-edge-solid);
+  }
+  /* Textarea surface="brand-tint" re-binds the solid edge on the element, so
+     every state that engages solid (focus, and hover under engage="hover")
+     picks it up; rest and invalid are untouched. */
+  [data-slot="textarea"][data-surface="brand-tint"] {
+    --field-edge-solid: var(--field-edge-brand-tint);
+  }
   /* SUBTLE: the faintest deepen of the hairline — search / low-chrome, and the
      tags field. The near-black solid edge is a strong, decided signal we reserve
      for single-line fields; on a big tag container it reads as a heavy box, so
@@ -1325,10 +1338,14 @@
        --field-edge-rest     light resting hairline (lighter than the button edge)
        --field-edge-engaged  SUBTLE focus — barely deeper than rest
        --field-edge-solid    SOLID focus — the edge turns near-black in place
+       --field-edge-brand-tint  SOLID on a brand-tinted surface (Textarea
+                             surface="brand-tint"); light keeps near-black, since
+                             a brand edge muddies into a pale tint
        --field-placeholder   soft hint color — lighter/greyer than muted text */
   --field-edge-rest: oklch(0 0 0 / 0.11);
   --field-edge-engaged: oklch(0 0 0 / 0.17);
   --field-edge-solid: oklch(0 0 0 / 0.78);
+  --field-edge-brand-tint: var(--field-edge-solid);
   --field-placeholder: oklch(0.66 0.004 95);
   /* ── Accent palette ────────────────────────────────────────────────────
      Unified hue ramps for colored surfaces (menu items, tags, status,
@@ -1732,6 +1749,9 @@
   --field-edge-rest: oklch(0.318 0 0);
   --field-edge-engaged: oklch(0.42 0 0);
   --field-edge-solid: oklch(0.60 0 0);
+  /* Dark: on a deep brand tint the solid gray sinks into the fill; the brand
+     itself is the edge that lifts off it. */
+  --field-edge-brand-tint: var(--brand);
   /* Dark: segmented control labels. The thumb chip is the primary "selected"
      signal, so idle text can be fully bright. idle ≈ foreground; hover pushes
      toward white; active also uses --foreground (same as idle, chip distinguishes). */

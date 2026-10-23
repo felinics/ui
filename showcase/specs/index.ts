@@ -8,6 +8,7 @@ import { checkboxSpec } from './checkbox'
 import { dialogSpec } from './dialog'
 import { dropdownMenuSpec } from './dropdown-menu'
 import { fieldSpec } from './field'
+import { infoHintSpec } from './info-hint'
 import { inputSpec } from './input'
 import { inputGroupSpec } from './input-group'
 import { nativeSelectSpec } from './native-select'
@@ -51,5 +52,6 @@ export const componentSpecs: ComponentSpec[] = [
   popoverSpec,
   dropdownMenuSpec,
   tooltipSpec,
+  infoHintSpec,
   sonnerSpec,
 ]

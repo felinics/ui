@@ -238,6 +238,12 @@ i18n)、`width: 'fit' | 'full'`(fit 贴合代码,聊天用;full 撑满行,对话
 式的状态开关按钮用 —— 不要再用 min-w 魔法数定宽或手写叠格量宽(grid 轨道按最宽
 label 定尺寸、靠左锚定会单侧裁字,这些坑都已收进组件,见其头注)。
 
+**InfoHint**(`@felinic/ui` 原语,非 apps/web owner,顺带登记防重造)
+只负责解释的 ⓘ:12px(图标阶梯的文字档)、灰色,悬停或键盘聚焦弹出 Tooltip(默认向上)。
+它不是按钮,点了要执行操作的用 Button;和所有 Tooltip 一样触屏看不到,关键信息不能只放在
+里面。Props: `text`(同时是无障碍名称,写成完整句子)、`side?`。不要再手写 `Info` 图标 +
+TooltipTrigger,也不要在调用处改它的尺寸或颜色。
+
 **MetricReadout** · `settings/metric-readout.vue`
 One metric tile: caption label + tabular value (or a status dot + label). Props: `label`,
 `value`, `sub`, `framed` (default `true` — draws the tile box; `false` for a bare stat on
@@ -426,6 +432,7 @@ An error / warning / info notice?               → CalloutBanner (bare inside a
 A device-code "enter this code" moment?         → DeviceCodePanel
 Read-only code / a command to copy?             → CodePanel
 A label that swaps with state (Connect↔Cancel)? → LabelSwap (@felinic/ui)
+A ⓘ that only explains something nearby?       → InfoHint (@felinic/ui)
 The page frame itself?                          → PageShell
 A pane with nothing to show (loading/empty)?    → PanePlaceholder (centered fill)
 An in-flow loading row (spinner + text)?        → InlineLoadingRow
