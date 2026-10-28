@@ -229,7 +229,8 @@ prose use `variant="link"`; for a control-sized action use a normal `<Button>`.
 A glyph whose whole job is to reveal a short explanation is NOT an action, so it
 is not an icon `<Button>` (no hover chip, no pointer cursor) and not a
 hand-rolled span. `<InfoHint>` is a muted 14px Info glyph that opens a Tooltip
-on hover, keyboard focus or a tap, upward by default (`side`). It sits one rung
+on hover, keyboard focus or a tap, upward by default (`side`); beside taller
+controls, `align` points it away from them (`"end"` when they sit to its right). It sits one rung
 above the 12px text rung on purpose: a thin outline circle reads smaller than
 solid text of the same height, so it is sized to look level with the label
 beside it, not to match its cap height. Its hit area is widened to 26px for

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InfoHintSide } from '.'
+import type { InfoHintAlign, InfoHintSide } from '.'
 import { Info } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../tooltip'
@@ -9,8 +9,13 @@ const props = withDefaults(defineProps<{
   // accessible name.
   text: string
   side?: InfoHintSide
+  // Where the tooltip sits along that side. A glyph beside taller controls
+  // passes the edge that points away from them ('end' when they are to its
+  // right), so the tooltip never lands on them.
+  align?: InfoHintAlign
 }>(), {
   side: 'top',
+  align: 'center',
 })
 
 const open = ref(false)
@@ -39,7 +44,10 @@ function onClick() {
        is the only thing a tap does; a tap elsewhere, blur or scroll closes it.
        The ::after widens the hit area by 6px each side, to 26px — past the
        24px minimum target — without moving the glyph; 6px is also the
-       action-row gap, so it never reaches into a neighbouring button. -->
+       action-row gap, so it never reaches into a neighbouring button.
+       The tooltip is narrower than the generic 320px and balances its lines:
+       the hint is one full sentence, and at full width it wraps a lone last
+       character on a phone. collision-padding keeps it off the screen edge. -->
   <TooltipProvider :delay-duration="0">
     <Tooltip
       v-model:open="open"
@@ -61,7 +69,12 @@ function onClick() {
           />
         </span>
       </TooltipTrigger>
-      <TooltipContent :side="props.side">
+      <TooltipContent
+        :side="props.side"
+        :align="props.align"
+        :collision-padding="8"
+        class="max-w-60 text-balance"
+      >
         {{ props.text }}
       </TooltipContent>
     </Tooltip>
