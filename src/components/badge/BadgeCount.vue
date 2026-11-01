@@ -11,8 +11,14 @@ import { cn } from '#/lib/utils'
 // fills with a high-contrast numeral instead:
 //   default     — neutral solid that flips with the theme (foreground/background),
 //                 always crisp, for a plain "N items" count.
-//   destructive — the saturated red alert dot (red-fill + white) for unread /
-//                 attention-worthy counts; the canonical notification bubble.
+//   destructive — the saturated red alert dot (red-fill + white): something failed
+//                 or needs fixing; the loudest rung, keep it for real alerts.
+//   warning     — the yellow solid (warning + its dark solid foreground): something
+//                 is waiting on the user.
+//   brand       — the scheme's brand solid (brand + white): a plain "new for you"
+//                 count that should be spotted without reading as an alert.
+// Pick the tone by what the count means, so a summary of mixed items can speak
+// for its most urgent one (red > yellow > brand).
 // (No soft variant — if a count should whisper, it usually shouldn't be a bubble at
 //  all but a plain muted numeral in the row.)
 const badgeCountVariants = cva(
@@ -29,6 +35,8 @@ const badgeCountVariants = cva(
       variant: {
         default: 'bg-foreground text-background',
         destructive: 'bg-accent-red-fill text-accent-red-foreground',
+        warning: 'bg-warning text-warning-solid-foreground',
+        brand: 'bg-brand text-brand-foreground',
       },
     },
     defaultVariants: {

@@ -448,8 +448,10 @@ recurring failures to avoid:
   *footprint* (e.g. matching an adjacent control's size so two rows carry comparable weight), borrow
   only the size (`flex items-center justify-center` at whatever size fits) — never the primitive's
   border/bg. See `reference.md` § Dirty → clean for the full case (`ActionCard`'s icon slot).
-- **`BadgeCount`:** `destructive` red dot pinned to an icon corner = alert/unread; `default`
-  neutral count rides a tab/filter/segment; a flat list row uses a plain muted numeral, no bubble.
+- **`BadgeCount`:** tone by meaning, loudest first: `destructive` red = something failed or
+  needs fixing, `warning` yellow = something waits on the user, `brand` = new-for-you without
+  alarm; `default` neutral count rides a tab/filter/segment; a flat list row uses a plain muted
+  numeral, no bubble. A count summarizing mixed items takes its most urgent item's tone.
 - **`Tooltip`:** always the `@felinic/ui` `Tooltip`. A hand-rolled or legacy tooltip is a bug.
 - **An empty state keeps the populated skeleton — it is the same page with no rows yet.** The
   worst empty-state failure is letting "there's no data" rearrange the page into a *different*
