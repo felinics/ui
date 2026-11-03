@@ -651,7 +651,7 @@ already in our system, or like an AI improvising its own house style?"
 | Clickable low-emphasis text w/ hover chip | `TextButton` (ghost @ `size="text"`) | a `<span @click>` with a hand-rolled hover |
 | High-emphasis CTA | `<Button>` (charcoal default) | `variant="brand"` purple unless it's a true brand CTA |
 | Destructive action | `<Button variant="destructive">` (filled) | `variant="ghost"` + `text-destructive` |
-| Count / unread / overflow badge | `BadgeCount` (`destructive` alert · `default` neutral) | a hand-built rounded-full number pill |
+| Count / unread / overflow badge | `BadgeCount` (`destructive` alert · `warning` waiting · `brand` new · `default` neutral) | a hand-built rounded-full number pill |
 | Empty surface | `Empty` (+ framed) | bare centered muted `<p>` |
 | Status that aligns to a section title | `Badge` (gives the status a box edge) | a loose dot + text floating with nothing to align to |
 | Create / edit form | the New Task `Dialog` shape (§ Form recipe) | a bespoke per-page form layout; `sm` footer buttons |
@@ -678,7 +678,10 @@ look "compact" (or inflated to look "important"). Size each for a reason, not by
   in-field **14px** (`size-3.5`); text/badge rung **12px** (`size-3`). Pick the rung; don't
   free-set sizes.
 - `BadgeCount`: `destructive` is the red alert dot pinned to an **icon corner**
-  (`absolute -right-1.5 -top-1.5`) for unread/needs-attention; `default` is a neutral count
+  (`absolute -right-1.5 -top-1.5`) for a failure or something that needs fixing; `warning`
+  (yellow, dark numeral) counts items waiting on the user; `brand` counts plain new items
+  (unread replies) so they are spotted without reading as an alert. Keep red scarce: a count
+  over mixed items takes its most urgent item's tone (red > yellow > brand). `default` is a neutral count
   that rides a tab/filter/segment label; in a flat list row, a count is calmer as a plain
   muted numeral (`text-caption tabular-nums text-muted-foreground`), no bubble. Overflow caps
   at `:max` (default 99 → `99+`).
