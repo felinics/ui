@@ -13,9 +13,9 @@ workspace resolves it by path with zero build/publish step.
 | Path | What it is |
 |---|---|
 | `src/` | Components + `style.css` (interaction contracts, radius/text/z/alpha token scales) |
-| `AGENTS.md` | The atom-level design-token law. Read it before touching any component. |
-| `skills/web/` | Page-level design-language skill (AI agent skill) |
-| `skills/ui-owners/` | Spacing-owner vocabulary skill (AI agent skill) |
+| `AGENTS.md` | The atom-level design-token and foundations contract. Read it before touching any component. |
+| `skills/ui-owners/` | Component and layout-primitive vocabulary skill (AI agent skill) |
+| `skills/ui-patterns/` | Cross-component interaction and page-pattern library (AI agent skill) |
 | `showcase/` | The module's own living reference — a custom spec-driven component showcase (`pnpm dev`) |
 
 ## Consuming as a submodule
@@ -61,11 +61,3 @@ adapts call sites.
   `scripts/check-ui-contract.mjs` enforces the token law over these sources;
   PRs here are only guard-checked when a host bumps its pointer. Parameterizing
   the guard and moving it into this repo's CI is a planned follow-up.
-- **Owner components still live in the host** (`apps/web/src/components/`):
-  SettingsRow, FieldStack, PageShell, etc. The `ui-owners` skill
-  documents them, so a brand-new host that doesn't share the same page
-  structure won't get them from this repo yet. Promoting them into `src/` is
-  a planned follow-up.
-- **`skills/web/reference.md`** is a host-specific page map — host
-  knowledge that travels here for now; splitting portable design language
-  from host-specific references is a planned follow-up.

@@ -1,182 +1,49 @@
-# The showcase — local doctrine
+# 组件展示站（showcase/）开发规范
 
-This file governs work INSIDE `showcase/` (pages, specs, shell chrome). The
-parent contract (`../AGENTS.md`) still applies in full — tokens only, the
-clean/dirty rule, rem on text-coupled sizes, the z ladder. If you are working
-on the library itself (`src/`) or on the host app, you do NOT need this file.
+本文件仅约束 `packages/ui/showcase/` 内部的页面、spec 与外壳代码；上层 `../AGENTS.md` 的全部基础契约（纯 Token、单层交互、文字关联属性用 `rem`、五级 z 梯）在此同样生效。仅修改组件库 `src/` 或宿主业务应用时无需阅读本文件。
 
-**The showcase is the copy-precedent surface.** Everyone who builds a Memoh
-interface will treat whatever they find here as the sanctioned way to write
-it — a hand-written pattern in the showcase reads as "official, feel free to
-copy". So: every class on every page must trace to an owner component or a
-documented tier. If a shape recurs, it becomes vocabulary (an owner, a prop,
-or one shared home like `lib/frame.ts`). If a shape is genuinely one-off
-(page-local demo staging), it may stay hand-written ONLY with a comment
-stating why it is not shared vocabulary. A component library that cannot
-build its own showcase out of itself has no authority to teach anyone.
+**展示站是全团队照抄代码的最高样板面**。任何出现在 `showcase/` 中的写法都会被当成官方标准复制，因此每个页面上的每一个类名都必须归属于某个原语组件（Owner）或已登记的样式档位；重复出现的结构必须提炼为原语、prop 或共享常量（如 `lib/frame.ts`）；确属页面局部一次性的演示容器必须附注释说明为何不进共享层。
 
-`pnpm dev` serves the module's living reference: a custom, spec-driven
-showcase (foundations pages + one page per component with live controls and
-light/dark × 5-scheme switching). It replaced Storybook (removed — 3 stale
-stories, zero remaining value over the dev wall).
+`pnpm dev` 启动这套基于 spec 驱动的展示站（包含 `Foundations` 基础页、`Patterns` 跨组件规范页、`Components` 单组件交互页与 `Examples` 整页样板，支持深浅色 × 5 套配色实时切换，已彻底取代 Storybook）。
 
-## Adding or changing a component page
+## 新增或修改单组件页（Components）
 
-- **One spec per component** in `showcase/specs/<name>.ts`, registered in
-  `showcase/specs/index.ts` (order = sidebar order). The spec declares
-  `controls`, optional `examples`, `render(state)`, and optional `usage` —
-  the page's sections and the controls board all derive from it.
-- **Control options come from the component's exported key arrays**
-  (`buttonVariantKeys`, `toggleVariantKeys`, …) — never a hand-copied list.
-  If a component doesn't export its keys, add the export next to its cva call
-  (the `*Keys` pattern) rather than duplicating the list in the spec.
-- **The page carries NO code snippets.** Live snippet generation (a per-spec
-  `code()`) shipped and was removed: a snippet row under every section read
-  as noise, and the snippet duplicated what `render()` already shows. Do not
-  reintroduce per-spec snippet fields — if a copy-paste story is ever needed
-  it comes back as ONE well-designed surface, not per-section disclosures.
+- **每个组件对应一个 spec 文件**：位于 `showcase/specs/<name>.ts`，并在 `showcase/specs/index.ts` 中注册（注册顺序即侧栏顺序）。每个 spec 声明 `controls`、可选 `examples`、`render(state)` 与可选 `usage`。
+- **控件可选项直接复用组件导出的常量数组**：如 `buttonVariantKeys`、`toggleVariantKeys`，绝不在 spec 中手抄一份数组；若组件尚未导出对应 `*Keys` 数组，在组件 `cva` 定义旁补齐导出后再引用。
+- **页面不展示代码片段折叠块**：早期逐节生成 `code()` 代码框的机制因视觉噪音大且与真实渲染重复已被移除，不要重新引入。
 
-## The component page is a doc spine, not a mode-switched stage
+## 组件页的文档脊柱结构（Doc Spine）
 
-The page frame is **PageShell itself** (`src/components/settings`) — the same
-component the host's settings/plugins pages use, so the title block, gutter,
-and header→body rhythm are pixel-identical by construction. Inside it, one
-vertical scroll: **Playground** → **one section per example** → **All
-variants** (the `matrix` wall, only when declared) → **Usage** (only when the
-spec has `usage`).
+组件页外框统一使用 `<PageShell>`（与宿主设置页像素级同构），内部单列纵向排布：**Playground（交互试验台）→ 各个 Example 章节 → All variants（全变体矩阵，仅在声明 `matrix` 时渲染）→ Usage（用法说明，仅在声明 `usage` 时渲染）**。
 
-- **Section headings follow the tier law, and the two tiers never mix.** The
-  **Playground** is a FUNCTIONAL section, not a doc chapter — it takes the
-  settings-section label tier (SectionGroup `tone="muted"`, the 13px muted
-  label, same as "Server Workspace" on the host's tool-approval page). **Doc
-  chapters** (every example, All variants, Usage) are SectionGroups in
-  `heading` mode — their title/hint is the shared PageHeader (the same
-  component PageShell's title block composes), so a chapter heading can never
-  drift from the page header it mirrors — "looks alike" is not reuse.
-- **The Playground's controls** are a SettingsSection of SettingsRows
-  (widgets in the trailing slot at DEFAULT size). NEVER invent a
-  control-board layout (a label-over-widget grid, a transcribed settings row,
-  sm-size widgets) — the owner components are the one shape, and hand-writing
-  their look is the 同形异码 failure the owner vocabulary exists to prevent.
-- **The horizontal grid is the owners'.** The px-2 title inset exists
-  RELATIVE TO A surface beneath — Playground (controls card) and examples
-  (each stages its instances in a MINI PLAYGROUND: a plain rounded border
-  frame — `showcase/lib/frame.ts`'s STAGE_FRAME_CLASS, never re-typed — with
-  left-aligned content, no viewport/theme chrome) inset their titles px-2;
-  sections with a truly bare body (Usage — no card at all) set `bare` and
-  keep title, hint, and body on one flush edge with a roomier title→body gap.
-  Never hand-align a title with its card, and never hand-write a section
-  title at a stronger weight (text-title/semibold is NOT the section-title
-  tier).
-- **Prose sits at the description rung.** Usage/body copy is `text-control` —
-  `text-body` (12px) is a caption rung and is never long-form copy.
-- **All example sections render at once down the scroll** — that density is
-  the point; there is no "stage mode" switcher and no right rail. Vertical
-  rhythm: gap-8 between page-level sections (the host's settings-page
-  rhythm). Page geometry must be identical regardless of content height —
-  both scroll containers carry `scrollbar-gutter: stable`, so a page too
-  short to scroll (Textarea) doesn't shift the column sideways.
-- **Every visual decision must trace to an owner — or extend the
-  vocabulary.** Layout, color, type rung, and inset alike: if a shape on the
-  page is not covered by an owner component or a documented tier, the ONLY
-  legal moves are (1) add a prop to the owner (e.g. SectionGroup's `tone`,
-  PageShell's `width`) or (2) add a new owner. Approximating the shape by
-  hand — "close enough" classes that merely look right — is reward hacking:
-  it passes self-review until someone does a same-level comparison against
-  the real page type. When in doubt, diff against the host surface that IS
-  the same level (a settings page, a provider grid) before writing a single
-  class. And if the host has a real counterpart component, MOVE the file
-  (verbatim, token-adapted, host becomes a re-export shim) — never
-  transcribe it.
-- **Static pages (Overview, foundations) follow the same law.** Frame:
-  PageShell with the legislated `width` rung ('md' reading column, 'lg'/'xl'
-  specimen boards) — never a hand-set max-w/p-8. Chapters: SectionGroup
-  `heading`, `bare` decided by the body (bordered cards/frames → inset;
-  hairline tables, prose, borderless grids → bare). Hairline token-ladder
-  lists are **SpecimenTable/SpecimenRow** (`showcase/components/`), the
-  single home for that shape. Explanatory notes become the SectionGroup
-  `description` (under the title), never a loose paragraph beside the
-  content.
-- **Example `note` is one line of when/why, never a restated title.** Optional
-  per example — a section with nothing to teach renders no note line rather
-  than filler. Same copy discipline as the rest of the library.
-- **A spec opts into the matrix** by declaring `matrix: { rows, cols }` with
-  control keys — only axes a reviewer actually scans (Button: variant × size).
+- **章节标题层级严禁混用**：
+  - **Playground** 属于功能区，使用设置分组标签层级（`SectionGroup tone="muted"`，13px 静音灰字）；
+  - **文档章节**（Example、All variants、Usage）使用 `SectionGroup` 的 `heading` 模式（内部复用与 `PageShell` 同源的 `PageHeader`）。
+- **Playground 的控制面板必须由 `SettingsSection` + `SettingsRow` 组合**（右侧控件使用默认尺寸），严禁手搓网格或缩小成 `sm` 控件。
+- **水平对齐与内缩规则**：下方有带框面板的章节（Playground 控制卡、包在 `STAGE_FRAME_CLASS` 里的示例）标题带 `px-2` 内缩；下方为无边框纯文本或表格的章节（如 Usage）设置 `bare`，使标题、提示与正文左边缘齐平。正文说明字号使用 `text-control`（14px），不用 12px 的 `text-body`。
+- **双滚动容器均固定声明 `scrollbar-gutter: stable`**：保证短页面与长页面的居中列位置完全一致，切换时不发生横向跳动。
+- **静态页（Overview、Foundations）同样遵守原语规范**：外框用 `PageShell`（阅读列用 `width="md"`，展板页用 `'lg'`/`'xl'`），章节用 `SectionGroup heading`，细线 Token 表统一使用 `SpecimenTable` / `SpecimenRow`（`showcase/components/`）。Foundations 的色板数据通过运行时读取真实计算样式获得，其余静态表维护在 `showcase/lib/foundations-data.ts` 中。
 
-## Examples pages — the example IS the page
+## 跨组件规范页（Patterns）与整页样板（Examples）
 
-`pages/examples/` holds whole-page specimens of classic product surfaces
-(a settings page, …) — the surfaces every product has, where library-wide
-passes (cursor, motion, width) are judged on a real interface instead of
-single-component playgrounds. They are a third page kind beside component
-pages and foundation pages, with their own law:
+- **`Patterns`（`pages/patterns/`）與 `skills/ui-patterns/` 一一对应**：用于展示跨组件场景规则（如对话框表单 `DialogForms`、保存模型、空状态、渐进披露）的真实正反样本与定稿默认值。
+- **`Examples`（`pages/examples/`）本身就是完整页面**：
+  1. **不套文档外框**：页面自己的 `<PageShell>` 直接填满内容区，外面绝不包裹 `STAGE_FRAME_CLASS` 或 `CanvasStage`；
+  2. **100% 纯原语组合**：只准由 `PageShell`、`SettingsSection`、`SettingsRow`、`FieldStack`、`DialogPanel` 等原语拼装，任何手写布局类都代表原语缺口，应回库补齐原语；
+  3. **不锁死宽度、不预塞假数据**：控件保持组件库默认宽度（如 `Select` 默认 `w-fit`、`Input` 默认 `w-full`），暴露真实默认表现；
+  4. **中英双语文案走 `tt()`**：文案采用通用产品表述，不写业务专有名词。
 
-- **No doc frame.** The example fills the content area directly — its own
-  `PageShell` IS the page. Never wrap it in a documentation spine, a
-  `STAGE_FRAME_CLASS` frame, or a `CanvasStage`: the point is to feel the
-  components in a real surface, and a stage would turn them back into
-  boxed specimens.
-- **Owners only, stricter than anywhere else.** An example page is the
-  strongest copy-precedent surface in the repo — compose it exclusively
-  from owner vocabulary (`PageShell` / `SettingsSection` / `SettingsRow` /
-  the controls themselves). If a shape the page needs has no owner, that
-  is a vocabulary gap to legislate, not a class to hand-write.
-- **No width pinning, no state seeding beyond defaults.** Controls render
-  at their library defaults (`Select` at `w-fit`, `Input` at `w-full`, …)
-  so the page exposes true default behavior in real rows. If a row looks
-  wrong, the fix belongs in the library, not in a class on the page.
-- **Overlays uncontrolled, state local** (per the overlay invariants
-  below): each `Select`/`Dialog` owns its open state; page state is plain
-  refs. No fake backends, no demo data plumbing.
-- **Bilingual, generic copy.** All strings go through `tt()` and read as
-  "any product's" copy — an example names no concrete product and teaches
-  no Memoh-specific business wording.
+在 `showcase/registry.ts` 的 `navGroups` 中对应注册到 `patterns` 或 `examples` 分组。
 
-Register each page in `registry.ts` under the `examples` nav group via the
-`example()` helper (id prefix `examples/`).
+## 浮层组件铁律（曾三次导致整页死锁，严禁违背）
 
-## Overlay invariants (dead-locked three times — do not re-try)
+1. **所有浮层组件必须以非受控（Uncontrolled）方式渲染（`interactive: true`，严禁绑定受控 `open` 控制项）**：
+   - `Select`、`Dialog`、`DropdownMenu`、`Tooltip`、`Popover` 由各自的 Reka 触发器自行管理开关。在 spec 的 `render(state)` 中每次调用都会生成全新临时状态对象，一旦传入受控 `open`，`onUpdate:open` 写入的临时对象立即被丢弃，浮层永远无法关闭，其底层的 `DismissableLayer` 会把整页 `pointer-events` 彻底锁死。
+   - 唯一默认展开的例外是 `Tooltip`，通过 Reka 的非受控 `defaultOpen` 实现（无背景遮罩不会锁页面），但在 `state.__preview`（Overview 缩略图）下必须关闭。
+2. **深浅色左右同屏对比仅限非浮层组件（`:can-split="!isOverlay"`）**：
+   - Reka 的 `DismissableLayer` 是文档级单例，无法同时打开左右两个浮层；浮层组件的深色效果通过切换整个页面主题查看。非浮层组件的深色分栏子树必须显式携带 `text-foreground` 与 `color-scheme: dark`。
+3. **`matrix` 全变体矩阵仅限非浮层组件**：`interactive: true` 的浮层组件不声明 `matrix`。
 
-- **Overlay specs render UNCONTROLLED — `interactive: true`, NO `open`
-  control.** Select/Dialog/DropdownMenu/Tooltip/Popover own their own
-  open/close via their reka trigger (click opens, Esc/outside-click closes).
-  The showcase renders exactly that: a closed, live trigger you click — like
-  the real component, and the honest copy-pasteable demo. It must NOT thread
-  a controlled `open`: `render()` rebuilds a fresh throwaway state each call,
-  so `onUpdate:open` writes into an object that's immediately discarded — the
-  overlay can NEVER be closed, and its DismissableLayer freezes the whole
-  page's `pointer-events`. That is the exact dead-lock that shipped three
-  times (Overview auto-Delete, Dialog auto-open, Select Examples wedged);
-  mark the spec `interactive` and render uncontrolled instead. Tooltip is the
-  one resting-open exception, via reka's UNCONTROLLED `defaultOpen` (a hint
-  has no scrim/DismissableLayer, so it can't wedge the page); suppress it
-  under `state.__preview` (Overview thumbnails) so the landing page never
-  sprouts a floating pill.
-- **Light/dark side-by-side is NON-overlay only.** A stage toggle renders the
-  view twice, the dark column being a scoped `.dark` subtree that MUST carry
-  `text-foreground` + `color-scheme: dark` itself (`color` is inherited with
-  its computed value locked at `<body>`, so without the explicit restart a
-  component relying on inheritance renders dark text on the dark column).
-  `interactive` (overlay) specs DON'T get the toggle (`ComponentPage` passes
-  `:can-split="!isOverlay"`, keyed off `spec.interactive`): reka's
-  DismissableLayer is a document-level singleton, so two open overlays can't
-  coexist. To view an overlay in dark, flip the whole page theme (shell
-  toggle). Do NOT reintroduce per-column state or portal redirection to force
-  overlay compare — tried and reverted, it only papered over the singleton.
-- **Matrix is non-overlay only** — an uncontrolled trigger can't be frozen
-  open per cell, so `interactive` specs never declare `matrix`.
+## 展示站外壳自举（Dogfooding）
 
-## The shell dogfoods the library
-
-Sidebar/controls/chrome are built from `@felinic/ui` components and follow
-the parent contract (tokens only, rem on text-coupled sizes, the z ladder,
-`[data-ui-selected]` for selected rows, the library's own Tooltip/Select/
-ScrollArea — never a hand-rolled bubble or native popup). The host guard
-scans `showcase/` the same as `src/`.
-
-## Foundation page data
-
-Either **live** (Colors measures each swatch bar's own computed background
-from the cascade — never transcribe values) or **static constants**
-(`showcase/lib/foundations-data.ts`, transcribed from `style.css` / the
-parent contract — update it when the source changes).
+展示站自身的侧栏、控制栏、主题切换器全部使用 `@felinic/ui` 组件搭建，遵守父级契约（纯 Token、文字关联尺寸用 `rem`、五级 z 梯、选中行用 `[data-ui-selected]`），并同样接受 `scripts/check-ui-contract.mjs` 的扫描检查。
