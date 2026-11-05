@@ -36,7 +36,9 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 
 const sizeClass = computed(() => ({
   sm: 'min-h-14 px-2.5 py-1.5 text-body',
-  default: 'min-h-16 px-3 py-2 text-label',
+  // Default matches Input (text-control + font-medium) so a text field and a
+  // textarea in the same form read as one family, placeholders included.
+  default: 'min-h-16 px-3 py-2 text-control font-medium',
   lg: 'min-h-20 px-3.5 py-2.5 text-control',
 }[props.size]))
 </script>

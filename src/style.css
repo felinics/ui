@@ -2052,8 +2052,9 @@
      Tuned for variable Latin + CJK fonts.
      Weight is ROLE-MAPPED via the --font-weight-* overrides below — do not free-style:
        · font-semibold (520) → surface / section titles (Card / Dialog / Sheet)
-       · font-medium   (450) → labels, button text, badges, small/inline titles, emphasis
-       · font-normal   (360) → body, descriptions, field values, placeholder, input text */
+       · font-medium   (450) → labels, button text, badges, small/inline titles, emphasis,
+                                and text typed into Input / Textarea (placeholder included)
+       · font-normal   (360) → body, descriptions, read-only field values */
   --text-caption: 0.6875rem; /* 11px — badges, tiny meta */
   --text-caption--line-height: 1rem;
   --text-caption--letter-spacing: -0.04px;
