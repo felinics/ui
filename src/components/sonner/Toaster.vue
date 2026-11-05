@@ -103,11 +103,24 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
+    <!--
+      The column is teleported outside every overlay, so to an open Dialog,
+      Sheet or Popover a press on a toast is an "outside" interaction: Reka's
+      DismissableLayer listens for pointerdown / focusin on the document and
+      dismisses the layer — closing the user's dialog (and its unsaved input)
+      just because they closed a notification. Reka's own Toast avoids this by
+      registering its viewport as a DismissableLayerBranch, which reka-ui does
+      not export; stopping these two events here, before they reach the
+      document, is the public equivalent. Handlers on the toast itself still
+      run — only the document-level listeners stop seeing toast interactions.
+    -->
     <ol
       :class="cn('memoh-toaster', `memoh-toaster--${props.position}`, props.class)"
       role="region"
       aria-label="Notifications"
       tabindex="-1"
+      @pointerdown.stop
+      @focusin.stop
     >
       <TransitionGroup name="memoh-toast">
         <!--
