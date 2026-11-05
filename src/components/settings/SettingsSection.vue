@@ -3,6 +3,12 @@
 // a rounded bg-card shell. Lifted from the host app's settings owner
 // vocabulary (apps/web/components/settings/section.vue, now a re-export
 // shim) so the section card has exactly one implementation.
+//
+// The card owns two things for everything placed in it: the horizontal
+// content inset (--settings-inset) and, being a settings list, the row rhythm
+// (see the "Settings list rhythm" block in style.css). Children therefore never
+// inset themselves; content that must reach the card's edges (a whole-row
+// click target, a table, a chart canvas) wraps itself in SettingsBleed.
 import { surfaceEdgeClass } from '#/lib/surface'
 
 withDefaults(defineProps<{
@@ -27,7 +33,16 @@ withDefaults(defineProps<{
       >
         {{ title }}
       </h2>
-      <slot name="actions" />
+      <!-- The toolbar is one right-aligned group whatever the caller puts in
+           it: left bare, several buttons would be spread across the header by
+           justify-between, and a lone action in an untitled section would sit
+           on the left. -->
+      <div
+        v-if="$slots.actions"
+        class="ml-auto flex items-center gap-2"
+      >
+        <slot name="actions" />
+      </div>
     </div>
     <!-- When a footer is present its hairline becomes the card's visual last
          divider, so the row above it loses its :last-child border-b-0 escape
@@ -36,23 +51,24 @@ withDefaults(defineProps<{
          whatever content element sits directly above the footer's hairline. -->
     <div
       data-settings-section-card
-      class="overflow-hidden rounded-menu-shell bg-section-card"
+      data-settings-list
+      class="overflow-hidden rounded-menu-shell bg-section-card px-(--settings-inset)"
       :class="[surfaceEdgeClass(bordered), $slots.footer && '[&>:nth-last-child(3)]:border-b-0']"
     >
       <slot />
       <!-- Footer: a right-aligned action bar (Save/Cancel) or a pagination strip.
-           Lives INSIDE the card, after the rows. Its divider is an INSET
-           hairline — same inset logic as a row divider, aligned to the content
-           padding rather than touching the card's edges. Only rendered when a
-           caller fills it, so a plain section is untouched. -->
+           Lives INSIDE the card, after the rows. Its divider sits inside the
+           card's inset like a row divider, so it never touches the card's
+           edges. Only rendered when a caller fills it, so a plain section is
+           untouched. -->
       <template v-if="$slots.footer">
         <div
           aria-hidden="true"
-          class="mx-4 border-t border-border"
+          class="border-t border-border"
         />
         <div
           data-settings-section-footer
-          class="flex items-center justify-end gap-2 px-4 py-3"
+          class="flex items-center justify-end gap-2 py-3"
         >
           <slot name="footer" />
         </div>

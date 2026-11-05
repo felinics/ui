@@ -58,7 +58,8 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
   - `BackButton`：页内详情的唯一返回按钮（幽灵样式，左箭头 + 单行截断标题），无法使用 `DetailPane` 的 Tab 子页也直接复用它。
   - `SwapTransition`：列表↔详情的左右推拉过渡容器（`direction: 'forward' | 'back'`，首屏无入场动画，返回时自动恢复列表此前的精确滚动位置）。
 - **`SettingsSection` `[稳定]`**
-  - 顶部静音灰字小标题 + 带边框白底圆角卡片（`bg-card` + `border-border` + 12px 圆角）。Props：`title`（可省略渲染无标题卡片）；插槽：`#actions`（标题右侧工具栏）、默认插槽（行列表）、`#footer`（卡片底部的顶边细线操作带，右对齐，供详情表单放取消/保存按钮）。绝不手写 `rounded-... border bg-card`。
+  - 顶部静音灰字小标题 + 带边框白底圆角卡片（`bg-card` + `border-border` + 12px 圆角）。Props：`title`（可省略渲染无标题卡片）；插槽：`#actions`（标题右侧工具栏：组件自带靠右的按钮组和 `gap-2` 间距，多个按钮直接放入，不再自包一层）、默认插槽（行列表）、`#footer`（卡片底部的顶边细线操作带，右对齐，供详情表单放取消/保存按钮）。绝不手写 `rounded-... border bg-card`。
+  - 卡片同时是外壳和列表：左右内缩由卡片统一提供（`px-(--settings-inset)`，16px），直接子元素中的 `SettingsRow` 等行获得列表的行节奏。卡片内的任何块都不再写 `mx-4` / `px-4`，非列表块只写上下内边距（如 `py-4`）。
 - **`SectionGroup` `[稳定]`**
   - 带标题的**无外框**内容组，用于内部子项本身已带边框的布局（如 `BackendCard` 网格），避免产生“卡套卡”。仅在一个页面上下堆叠**多个**此类分组时使用（如语音页的 TTS / STT）；整页只有一个网格时直接把标题和描述交给 `PageShell`。Props：`tone: 'foreground' | 'muted'`（默认前景深色；与 `SettingsSection` 同级混排时设为 `'muted'`，同页同级标题严禁混用两种色调）；`bare`（当内部内容完全无边框时开启，取消标题的 `px-2` 内缩并加大标题与正文的间距）。
 - **`StatusDot` `[稳定]`**
@@ -69,11 +70,15 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
 ## 三、卡片内行原语
 
 - **`SettingsRow` `[稳定]`**
-  - `SettingsSection` 卡片内的标准水平设置行（`min-h-[3.75rem] py-3 mx-4 border-b last:border-b-0`，自带左右内缩细线）。
+  - 设置列表里的标准水平设置行，只管行内布局（左标签描述、右控件、对齐与堆叠）。行高、上下内边距和行间细线（`min-h-15 py-3 border-b`，末行与 `:divider="false"` 无细线）由所在列表提供，左右内缩由卡片外壳提供；行本身不带任何外边距。放在列表外（例如弹窗里单独一行）时就是一行纯内容，不再自带缩进。
   - Props：`label`、`description`、`align: 'center' | 'start'`（带头像或多行内容的高行用 `'start'` 顶对齐）、`stack: 'never' | 'sm' | 'always'`（默认单行；`'sm'` 在窄屏下折为上下排布防挤压；`'always'` 永久上下排布，用于标签下方放全宽 `Textarea` 或代码块）。
   - 插槽：`#leading`（头像/图标/骨架）、`#content`（自定义左侧正文，如需要 `<Label :for>` 绑定焦点或插入状态徽标时替换默认标题描述）、默认插槽（右侧控件）。
 - **`ExpandableSettingsRow` `[稳定]`**
   - 整行头部可点击展开/收起下属面板的设置行。Props：`label`、`description`、`v-model:open`；插槽：`#leading`、`#content`、`#trailing`（默认带旋转 90° 的箭头）、`#expanded`（展开内容区，通常内放 `FormStack`）。仅用于“该行自身拥有展开内容”的场景。
+- **`SettingsList` `[稳定]`**
+  - 卡片之外的一组设置行（例如弹窗正文里按小标题分组的行），只提供列表的行节奏，不加内缩、不加底色：所在表面（`DialogBody` 等）已经有自己的内边距。`SettingsSection` 卡片本身就是列表，卡片内不要再套它。
+- **`SettingsBleed` `[稳定]`**
+  - 让卡片内的一块内容贴到卡片左右边缘：以同一个 `--settings-inset` 反向拉出（`-mx-(--settings-inset)`），内缩与它的例外共用一个值。用于悬停底色需要横跨整卡的整行点击目标（`ModelListRow` 内部即用它）、表格、图表或图谱画布、带满宽细线的分页条；内部需要与上下行文字对齐时自行补回 `px-(--settings-inset)`。
 - **`BackendCard` `[稳定]`**
   - 根节点为真实 `<button>` 的水平对象入口卡片。Props：`name`、`subtitle`、`enabled`（绘制状态点）；插槽：`#leading`（图标）、`#trailing`（默认右箭头）。用于提供商、存储后端等对象条目选择。
 - **`ModelListRow` `[稳定]`**
@@ -121,7 +126,7 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
 
 1. **仅需旋转图标、无伴随文字**（极少见，如窄侧栏局部指示）→ `<Spinner>` 原子；
 2. **点击触发异步请求的按钮自身** → 新代码用宿主封装的 `<LoadingButton>`（带 200ms 延迟与最短停留防闪），底层为 `<Button :loading>`；
-3. **文档流内左对齐的“旋转图标 + 静音文字”单行占位** → `<InlineLoadingRow>` `[稳定]`（通过 `surface="card-row"` 渲染 `SettingsSection` 卡片内部行形态，或通过 `surface="tab"` 渲染无外卡的整页 Tab 形态，严禁手抄类名混用两套边距）；
+3. **文档流内左对齐的“旋转图标 + 静音文字”单行占位** → `<InlineLoadingRow>` `[稳定]`（通过 `surface="card-row"` 渲染设置列表——`SettingsSection` 卡片或 `SettingsList`——里的行形态，或通过 `surface="tab"` 渲染无外卡的整页 Tab 形态，严禁手抄类名混用两套边距）；
 4. **整块面板尚无任何其他内容时的居中填充** → `<PanePlaceholder>` `[稳定]`（无边框，支持 `loading`、默认空状态与双行强调 `title` 三种模式；父容器需提供高度）。
 
 **`Empty` `[稳定]`**：页面或卡片内的结构化空状态组件（`EmptyHeader` / `EmptyTitle` / `EmptyDescription` / `EmptyContent`）。在 `SettingsSection` 内部时严禁加边框或图标底块；作为独立列表最外层时使用实线 `border`（详见 `../ui-patterns/references/loading-and-empty-states.md`）。
@@ -152,6 +157,8 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
 | 带标题的边框白卡（承载行列表） | `SettingsSection` |
 | 卡片内单行“左标签描述 + 右控件” | `SettingsRow` |
 | 点击行头原地展开下属表单的设置行 | `ExpandableSettingsRow` |
+| 卡片之外（如弹窗正文）的一组设置行 | `SettingsList` |
+| 卡片内需要贴边的表格 / 画布 / 整行点击目标 | `SettingsBleed` |
 | 点击选择某个提供商/后端的对象卡片行 | `BackendCard` |
 | 卡片内整行点击打开编辑器的紧凑列表行 | `ModelListRow`（若行内含多个独立开关/操作按钮则保留本地组件） |
 | 同页堆叠多组自带边框的网格（如多组卡片） | `SectionGroup` |

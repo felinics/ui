@@ -8,12 +8,14 @@
        "整 tab"家族,读作半空的高盒子而非紧凑一行。两种具名家族收进 `surface` prop,
        调用方不再能抄错;真正局部、未具名的定位仍走 class 传入(单根节点,Vue 把外部
        class 与内部基础 class 合并)。 -->
+  <!-- card-row 只声明自己是设置列表里的一行(data-settings-row):行高、上下边距和
+       分隔线由所在列表提供,横向缩进由卡片外壳提供,与 SettingsRow 一致。 -->
   <div
+    :data-settings-row="surface === 'card-row' ? '' : undefined"
     :class="[
       'flex items-center gap-2 text-muted-foreground',
       size === 'md' ? 'text-control' : 'text-body',
       bordered && 'rounded-md border border-border-soft bg-background p-3',
-      surface === 'card-row' && 'mx-4 min-h-[3.75rem] border-b border-border py-3 last:border-b-0',
       surface === 'tab' && 'px-2 py-8',
     ]"
   >
@@ -39,7 +41,7 @@ withDefaults(defineProps<{
   bordered?: boolean
   /**
    * 具名定位家族,取代调用方手抄同一串 class:
-   * `card-row` = SettingsSection 卡片内的列表行占位(带下边框,末行去边框);
+   * `card-row` = 设置列表(SettingsSection 卡片或 SettingsList)里的行占位,行节奏与分隔线随列表;
    * `tab` = 整个 tab 无卡片包裹时的居中留白占位。
    * 不传则不加任何定位 class,由调用方经根 class 传入(局部、未具名的定位场景)。
    */

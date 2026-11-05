@@ -54,7 +54,7 @@ const widthClass = computed(() => settingsWidthClass(props.width))
     >
       <div class="space-y-6">
         <SettingsSection>
-          <div class="flex items-center gap-3 px-4 py-3">
+          <div class="flex items-center gap-3 py-3">
             <!-- Real header uses size-9 rounded-full avatar; force full round so the
                Skeleton base rounded-lg cannot leave a square chip. -->
             <Skeleton class="size-9 shrink-0 !rounded-full" />
@@ -72,13 +72,13 @@ const widthClass = computed(() => settingsWidthClass(props.width))
           </div>
         </SettingsSection>
 
-        <!-- Form card: SettingsRow geometry (mx-4 / py-3.5 / inset hairlines) +
-             h-9 field controls matching real Input / Select height. -->
+        <!-- Form card: row geometry (py-3.5 / hairlines; the card supplies the
+             inset) + h-9 field controls matching real Input / Select height. -->
         <SettingsSection>
           <div
             v-for="i in 4"
             :key="i"
-            class="mx-4 flex items-center justify-between border-b border-border py-3.5 last:border-b-0"
+            class="flex items-center justify-between border-b border-border py-3.5 last:border-b-0"
           >
             <Skeleton class="h-4 w-24 shrink-0 !rounded-md" />
             <Skeleton class="h-9 w-80 max-w-[55%] !rounded-md" />

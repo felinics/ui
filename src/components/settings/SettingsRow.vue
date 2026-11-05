@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-// SettingsRow — one horizontal row inside a settings card: label (+ optional
-// description) left, trailing control right. Lifted from the host app's
-// settings owner vocabulary (apps/web/components/settings/row.vue, now a
-// re-export shim) so any surface — host pages, the showcase's control board —
-// composes the same row instead of transcribing its geometry. The canonical
-// geometry (min-h-[3.75rem] py-3 mx-4 border-b, inset hairline,
-// last:border-b-0) lives here and nowhere else.
+// SettingsRow — one settings row: label (+ optional description) left,
+// trailing control right. Lifted from the host app's settings owner vocabulary
+// (apps/web/components/settings/row.vue, now a re-export shim) so any surface —
+// host pages, the showcase's control board — composes the same row instead of
+// transcribing its geometry.
+//
+// The row arranges its own content and nothing else. The horizontal inset
+// belongs to the surface it sits on (SettingsSection's card pads by
+// --settings-inset; a dialog body has its own padding), and the row height,
+// vertical padding and hairline belong to the list it sits in (the "Settings
+// list rhythm" block in style.css, keyed on data-settings-row). The same row
+// therefore needs no override to sit in a card, in a list inside a dialog, or
+// alone in a dialog body.
 const props = withDefaults(defineProps<{
   label?: string
   description?: string
@@ -24,6 +30,7 @@ const props = withDefaults(defineProps<{
   stack?: 'never' | 'sm' | 'always'
   // A row can visually continue into the next row (for example, a mode picker
   // followed by fields owned by that mode) without drawing a divider between them.
+  // The list draws the divider; false asks it to skip the one below this row.
   divider?: boolean
 }>(), {
   label: '',
@@ -32,8 +39,6 @@ const props = withDefaults(defineProps<{
   stack: 'never',
   divider: true,
 })
-
-const dividerClass = computed(() => (props.divider ? 'border-b' : 'border-b-0'))
 
 const rootClass = computed(() => {
   // Full literal class strings only — Tailwind scans source text, so a runtime
@@ -67,8 +72,10 @@ const trailingClass = computed(() => {
 
 <template>
   <div
-    class="mx-4 flex min-h-[3.75rem] border-border py-3 last:border-b-0"
-    :class="[rootClass, dividerClass]"
+    data-settings-row
+    :data-divider="divider ? undefined : 'false'"
+    class="flex"
+    :class="rootClass"
   >
     <!-- Leading media: an icon, avatar, channel mark, or a load skeleton that
          sits before the text. Only renders (and only claims its gap) when a

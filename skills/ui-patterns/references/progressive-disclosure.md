@@ -105,16 +105,15 @@
    ```
 2. **在 `SettingsSection` 白卡内部 → 细线行 + 右侧 `outline` `sm` 按钮**：
    ```vue
-   <div class="mx-4 flex min-h-[3.75rem] items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">
-     <span class="text-sm font-medium text-foreground">{{ $t('feature.advancedTitle') }}</span>
-     <Button variant="outline" size="sm" class="shrink-0" @click="open = !open">
+   <SettingsRow :label="$t('feature.advancedTitle')">
+     <Button variant="outline" size="sm" @click="open = !open">
        <ChevronRight class="size-4 transition-transform" :class="open ? 'rotate-90' : ''" />
        {{ open ? $t('feature.collapse') : $t('feature.expand') }}
      </Button>
-   </div>
+   </SettingsRow>
    <template v-if="open"><!-- 展开的设置行 --></template>
    ```
-   折叠行必须带 `last:border-b-0`：收起时它是卡片最后一行，底边细线自动隐藏以免与卡片底框叠成双线；展开后下方出现新行，它的底边自然成为分隔线（单行自包含展开也可直接使用 `<ExpandableSettingsRow>`）。
+   收起时折叠行是卡片最后一行，列表规则会去掉它的底边细线，不与卡片底框叠成双线；展开后下方出现新行，它的底边自然成为分隔线（单行自包含展开也可直接使用 `<ExpandableSettingsRow>`）。
 
 **关键边界：决定“原地折叠”还是“弹独立窗口”的唯一标准是“是否为同一个关注点（Concern）”，而不是字段数量**。
 - 如果这些高级选项属于**用户当前正在填写的同一个配置任务**（例如配置网络或渠道提供商时的鉴权、网络、环境变量等分组选填项），哪怕字段很多、分了几个小标题，也必须**留在当前卡片内用上面的原地折叠展开**——因为用户正在配这件事，把同一个表单的后半截拆进另一个弹窗会人为割裂操作流。

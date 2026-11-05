@@ -18,9 +18,11 @@ const props = withDefaults(defineProps<PrimitiveProps & {
   /** Keep a boundary when nested inside another card-colored surface. */
   bordered?: boolean
   /**
-   * Inner padding: `none` for a container whose rows carry their own inset
-   * (a list), `row` for a single header-like row (px-4 py-3, the SettingsRow
-   * rhythm), `lg` for a summary card with a headline figure (p-5).
+   * Inner padding: `none` for content that lays itself out edge to edge,
+   * `row` for a single header-like row (px-4 py-3, the settings card's inset
+   * and row padding), `lg` for a summary card with a headline figure (p-5).
+   * A list of settings rows belongs in SettingsSection, whose card supplies
+   * the inset and the row rhythm.
    */
   padding?: 'none' | 'row' | 'lg'
 }>(), {

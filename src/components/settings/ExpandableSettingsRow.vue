@@ -1,12 +1,12 @@
 <template>
-  <!-- A settings row whose whole header toggles a collapsible body. The border
-       and inset wrap the header AND the expanded panel as one unit (mx-4, one
-       hairline at the bottom), so an open row reads as a single block, not two
-       stacked rows. The header reuses SettingsRow's spacing skeleton
-       (min-h-[3.75rem] py-3) but is a real <button> — SettingsRow itself is not
-       interactive, so composing it here would nest a button inside a plain row;
-       reusing the skeleton keeps the rhythm without that trap. -->
-  <div class="mx-4 border-b border-border py-3 last:border-b-0">
+  <!-- A settings row whose whole header toggles a collapsible body. The header
+       AND the expanded panel form one list row (data-settings-row), so the
+       list's padding and single bottom hairline wrap both and an open row reads
+       as a single block, not two stacked rows. Like SettingsRow it never insets
+       itself — the surface it sits on does. The header is a real <button>
+       rather than a composed SettingsRow: SettingsRow is not interactive, so
+       composing it here would nest a button inside a plain row. -->
+  <div data-settings-row>
     <button
       type="button"
       class="flex min-h-[3.75rem] w-full cursor-pointer items-center py-0 text-left"

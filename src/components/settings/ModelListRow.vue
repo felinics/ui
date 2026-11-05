@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Settings } from 'lucide-vue-next'
+import SettingsBleed from './SettingsBleed.vue'
 
 // ModelListRow — the dense model-list navigation row: the whole row is the
 // click target. Lifted from the host (apps/web/components/settings/
@@ -28,7 +29,7 @@ const emit = defineEmits<{ click: [] }>()
 // overlay hover every other clickable surface in this vocabulary uses
 // (BackendCard, CalloutBanner's clickable variant) — the row's own chrome,
 // not a page injection.
-const rowClass = 'flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-foreground transition-colors disabled:pointer-events-none' /* ui-allow-style */
+const rowClass = 'flex w-full items-center justify-between gap-3 px-(--settings-inset) py-3 text-left text-foreground transition-colors disabled:pointer-events-none' /* ui-allow-style */
 const interactiveRowClass = 'cursor-pointer hover:bg-accent disabled:opacity-40' /* ui-allow-style */
 // ui-allow-alpha: pinned owner value, lifted verbatim with the row.
 const trailingIconClass = 'size-4 shrink-0 text-muted-foreground/60' /* ui-allow-alpha */
@@ -36,35 +37,39 @@ const trailingIconClass = 'size-4 shrink-0 text-muted-foreground/60' /* ui-allow
 
 <template>
   <!-- Whole row is the click target (native <button>), same contract as
-       BackendCard — not a passive row with a separate trailing action. -->
-  <button
-    type="button"
-    :class="[rowClass, !readonly && interactiveRowClass]"
-    :disabled="disabled || readonly"
-    @click="emit('click')"
-  >
-    <span class="min-w-0 truncate">
-      <span class="text-control font-medium">{{ label }}</span>
-      <span
-        v-if="meta"
-        class="ml-2 text-body text-muted-foreground"
-      >{{ meta }}</span>
-    </span>
-    <slot name="trailing">
-      <Settings
-        v-if="!readonly"
-        :class="trailingIconClass"
-      />
-    </slot>
-  </button>
+       BackendCard — not a passive row with a separate trailing action. The
+       button bleeds to the card's edges so its hover fill and hit area span the
+       whole card, then re-pads its content by the same inset so the label lines
+       up with the rows around it. -->
+  <SettingsBleed>
+    <button
+      type="button"
+      :class="[rowClass, !readonly && interactiveRowClass]"
+      :disabled="disabled || readonly"
+      @click="emit('click')"
+    >
+      <span class="min-w-0 truncate">
+        <span class="text-control font-medium">{{ label }}</span>
+        <span
+          v-if="meta"
+          class="ml-2 text-body text-muted-foreground"
+        >{{ meta }}</span>
+      </span>
+      <slot name="trailing">
+        <Settings
+          v-if="!readonly"
+          :class="trailingIconClass"
+        />
+      </slot>
+    </button>
+  </SettingsBleed>
   <!-- Divider is a sibling, not a border on the row itself: callers already
        know the last-item index from their v-for, so `last` is a plain prop
-       rather than a CSS :last-child trick — this keeps the component a
-       single click target with no inset-margin/full-bleed conflict (the
-       button stays edge-to-edge for a full-width hit area; only the hairline
-       itself insets by mx-4, matching the row content's px-4). -->
+       rather than a CSS :last-child trick. It stays inside the card's inset,
+       so only the button bleeds while the hairline lines up with row
+       dividers elsewhere. -->
   <div
     v-if="!last"
-    class="mx-4 border-b border-border"
+    class="border-b border-border"
   />
 </template>
