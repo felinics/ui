@@ -95,6 +95,3 @@ export const menuLabelClass = 'text-muted-foreground cursor-default pr-2.5 pl-2 
 
 // Short labels retain a comfortable menu width; narrow screens may shrink it.
 export const menuWidthClass = 'min-w-[min(var(--menu-min-width),calc(100vw-1rem))]'
-
-// Shared stroke for submenu direction hints.
-export const menuIndicatorStrokeWidth = 1.75
