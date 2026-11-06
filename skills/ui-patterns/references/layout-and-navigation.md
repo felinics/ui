@@ -28,9 +28,10 @@
   | 页面标题 ↔ 第一个分组 | `mb-6`（个人资料页为 `mb-8`） | 由 `PageShell` 内部管理 |
   | 卡片分组 ↔ 卡片分组 | `space-y-8` | 区分不同业务区块的大间距 |
   | 分组小标题 ↔ 所属卡片 | `space-y-2.5` | 小标题为 `px-2 text-label font-medium text-muted-foreground` |
-  | 卡片内行 ↔ 行 | `mx-4 border-b border-border py-3 min-h-[3.75rem]` | 由 `SettingsRow` 管理，末行 `last:border-b-0` |
+  | 卡片左右边缘 ↔ 卡片内容 | `--settings-inset`（16px） | 由 `SettingsSection` 卡片统一提供，卡片内任何块不再写 `mx-4` / `px-4` |
+  | 卡片内行 ↔ 行 | `min-h-15 py-3 border-b border-border` | 由设置列表（卡片或 `SettingsList`）提供给其中的 `SettingsRow`，末行无细线 |
   | 行标题 ↔ 行描述 | `mt-0.5` | 由 `SettingsRow` 管理 |
-  | 非列表类的卡片内边距块 | `p-4` 或 `p-5`，内部 `space-y-4` | 用于卡片内承载连续段落或表单块 |
+  | 非列表类的卡片内边距块 | `py-4` 或 `py-5`，内部 `space-y-4` | 用于卡片内承载连续段落或表单块；左右留白已由卡片提供 |
 
 ## 单层卡片原则（严禁卡套卡与双描边）
 
@@ -46,7 +47,7 @@
 
 1. **卡片内部行与行之间 → 左右内缩（Inset）**
    - 细线绝不能碰到圆角卡片的左右外边框（否则会把一张连续的圆角白卡切成几块叠起来的砖头）。
-   - 做法是把 `border-b` 放在带 `mx-4` 水平外边距的**行元素**上（即 `SettingsRow` 的默认行为），并在最后一行加 `last:border-b-0`。
+   - 卡片以 `--settings-inset` 给全部内容统一留白，行间细线画在**行元素**上（由列表规则提供给 `SettingsRow`，最后一行自动去掉），因此天然落在内缩范围内。
    - **严禁把 `border-b` 写在包裹 `v-if` 的透明外层包装 `<div>` 上**：当那个包装 `<div>` 恰好成为卡片的最后一个子节点时，它的满宽 `border-b` 会直接压在卡片自身的底边框上，不仅切穿圆角，还会叠出一条粗黑双线。
 2. **切分容器整体结构 → 边缘满宽（Full-bleed）**
    - 弹窗的顶栏/底栏分隔带、菜单内的分组分隔线（`DropdownMenuSeparator`，严禁加 `mx-1` 留白变悬空短线）、章节标题下划线或区块之间的独立 `<Separator>`，一律横跨容器左右边缘，由内容区自己保留内边距。

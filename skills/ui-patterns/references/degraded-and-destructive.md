@@ -77,7 +77,7 @@
 | `focus-visible:ring-success/30` 彩色焦点环 | 键盘焦点只用中灰 `--ring`；输入框聚焦原位换 `--field-edge-solid` |
 | `opacity-50 grayscale` 禁用态 | 全系统统一 `opacity-40` |
 | 吸顶半透明模糊顶栏 `bg-background/95 backdrop-blur` | 标准 `<PageShell>` 标题栏 |
-| 卡片内用满宽 `border-b` 或把 `border-b` 写在 `v-if` 包装 `div` 上 | 卡片内行用内缩 `mx-4 ... last:border-b-0`（`SettingsRow`），包装 `div` 不带边框 |
+| 卡片内用满宽 `border-b` 或把 `border-b` 写在 `v-if` 包装 `div` 上 | 卡片内行用 `SettingsRow`，细线由列表提供、内缩由卡片提供，包装 `div` 不带边框 |
 | 在 `SettingsSection` 白卡内给 `<Empty>` 加虚线框或灰底图标块 | 白卡内 `<Empty class="py-12">` 无边框无图标；独立列表外层 `<Empty>` 用实线 `border` |
 | 在已带边框的卡片行内放自带 `border` 的 `ItemMedia variant="icon"` | 前导图标只用透明尺寸盒，卡片细线是唯一描边 |
 | 把手动保存的 `SettingsSection #footer` 抄到根级设置页 | 根级设置页保存放 `PageShell #actions`；二级详情页才放 `#footer` |

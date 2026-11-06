@@ -1111,6 +1111,10 @@
   --menu-item-leading-size: calc(var(--text-label--line-height) + 1rem);
   --menu-viewport-max-height: calc(2.125rem * 9 + 0.125rem * 8);
   --select-viewport-max-height: var(--menu-viewport-max-height);
+  /* The settings card's horizontal content inset. The card (SettingsSection)
+     pads by it; SettingsBleed pulls full-width content back out by the same
+     amount, so the inset and its escape can never drift apart. */
+  --settings-inset: 1rem;
   --font-sans: "Inter Variable", "Inter", "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
   --radius: 0.625rem;
   --scheme-hue: 72;
@@ -2646,5 +2650,25 @@
   .menu-viewport > [role="separator"] {
     margin-block: max(0px, calc(var(--menu-frame-spacing) - var(--menu-row-gap)));
     margin-inline: calc(var(--menu-frame-spacing) * 2);
+  }
+}
+
+/* Settings list rhythm. A row arranges its own content and nothing else; the
+   list it sits in decides the row height, vertical padding and the hairline
+   between rows. SettingsSection's card is a list, and SettingsList makes one
+   anywhere else (for example a run of rows in a dialog). A row outside any
+   list — a single switch in a dialog body — therefore carries no rhythm.
+   Matched by DOM descendant rather than direct child so rows rendered from a
+   component root or inside a wrapper (AutoHeight, a v-for group) still join;
+   :last-child is per parent, as the old per-row last:border-b-0 was. Lives in
+   the components layer so a caller utility always wins by layer, never by
+   stylesheet order. */
+@layer components {
+  [data-settings-list] [data-settings-row] {
+    @apply min-h-15 border-b border-border py-3;
+  }
+  [data-settings-list] [data-settings-row]:last-child,
+  [data-settings-list] [data-settings-row][data-divider="false"] {
+    border-bottom-width: 0;
   }
 }
