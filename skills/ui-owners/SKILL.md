@@ -59,7 +59,7 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
   - `SwapTransition`：列表↔详情的左右推拉过渡容器（`direction: 'forward' | 'back'`，首屏无入场动画，返回时自动恢复列表此前的精确滚动位置）。
 - **`SettingsSection` `[稳定]`**
   - 顶部静音灰字小标题 + 带边框白底圆角卡片（`bg-card` + `border-border` + 12px 圆角）。Props：`title`（可省略渲染无标题卡片）；插槽：`#actions`（标题右侧工具栏：组件自带靠右的按钮组和 `gap-2` 间距，多个按钮直接放入，不再自包一层）、默认插槽（行列表）、`#footer`（卡片底部的顶边细线操作带，右对齐，供详情表单放取消/保存按钮）。绝不手写 `rounded-... border bg-card`。
-  - 卡片同时是外壳和列表：左右内缩由卡片统一提供（`px-(--settings-inset)`，16px），直接子元素中的 `SettingsRow` 等行获得列表的行节奏。卡片内的任何块都不再写 `mx-4` / `px-4`，非列表块只写上下内边距（如 `py-4`）。
+  - 卡片同时是外壳和列表：左右内缩由卡片统一提供（`px-(--settings-inset)`，16px），卡片内任意层级的 `SettingsRow` 等行都获得列表的行节奏（规则按后代匹配，中间隔着包裹元素或组件也生效；末行去分隔线按行所在的父元素判断）。卡片内的任何块都不再写 `mx-4` / `px-4`，非列表块只写上下内边距（如 `py-4`）。
 - **`SectionGroup` `[稳定]`**
   - 带标题的**无外框**内容组，用于内部子项本身已带边框的布局（如 `BackendCard` 网格），避免产生“卡套卡”。仅在一个页面上下堆叠**多个**此类分组时使用（如语音页的 TTS / STT）；整页只有一个网格时直接把标题和描述交给 `PageShell`。Props：`tone: 'foreground' | 'muted'`（默认前景深色；与 `SettingsSection` 同级混排时设为 `'muted'`，同页同级标题严禁混用两种色调）；`bare`（当内部内容完全无边框时开启，取消标题的 `px-2` 内缩并加大标题与正文的间距）。
 - **`StatusDot` `[稳定]`**
@@ -82,7 +82,7 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
 - **`BackendCard` `[稳定]`**
   - 根节点为真实 `<button>` 的水平对象入口卡片。Props：`name`、`subtitle`、`enabled`（绘制状态点）；插槽：`#leading`（图标）、`#trailing`（默认右箭头）。用于提供商、存储后端等对象条目选择。
 - **`ModelListRow` `[稳定]`**
-  - 卡片内紧凑型整行可点击导航行（根节点为 `<button>`，左侧名称与可选次要 `meta` ID，右侧装饰图标默认齿轮，通过 `last` 控制末尾分割线，显式派发 `click` 事件）。专用于“点击整行打开编辑弹窗”的紧凑模型列表；若一行内包含独立的启用开关、测试、删除等多个行内操作按钮（如 `providers/model-item.vue`），交互关系不同，保留独立实现，不强套此原语。
+  - 卡片内紧凑型整行可点击导航行（整行是一个 `<button>`，经 `SettingsBleed` 贴到卡片两侧边缘，因此只能放在 `SettingsSection` 卡片里；放进弹窗里的 `SettingsList` 会横向溢出 16px。左侧名称与可选次要 `meta` ID，右侧装饰图标默认齿轮，通过 `last` 控制末尾分割线，显式派发 `click` 事件）。专用于“点击整行打开编辑弹窗”的紧凑模型列表；若一行内包含独立的启用开关、测试、删除等多个行内操作按钮（如 `providers/model-item.vue`），交互关系不同，保留独立实现，不强套此原语。
 
 ---
 
@@ -197,7 +197,7 @@ description: 在编写或修改任何设置页、Bot 详情页 Tab、弹窗/气�
 ## 十、常见陷阱与机械守卫棘轮
 
 - **Tailwind 只扫描完整字面量字符串**：动态拼接如 `` `sm:${align}` `` 或 `` `min-h-[${x}]` `` 永远不会生成样式，条件分支必须写出完整的类名字符串。
-- **严禁 `<button>` 嵌套 `<button>`**：`BackendCard` 与 `ModelListRow` 的根节点已是 `<button>`，尾部插槽内绝不能再放 `Switch` 或下拉按钮；既要整行点击又要行内独立开关的行需采用拉伸遮罩层写法保留在本地。
+- **严禁 `<button>` 嵌套 `<button>`**：`BackendCard` 的根节点与 `ModelListRow` 的整行点击目标都是 `<button>`，尾部插槽内绝不能再放 `Switch` 或下拉按钮；既要整行点击又要行内独立开关的行需采用拉伸遮罩层写法保留在本地。
 - **控制兄弟区块显隐的开关不用 `ExpandableSettingsRow`**：该组件只管理自己内部的 `#expanded`；若按钮控制的是下方另一个带独立分割线的兄弟区块，使用普通 `SettingsRow` 放按钮。
 - **`SettingsSection #footer` 固定右对齐**：适合放“取消 + 保存”；左统计文字、右分页器的 `justify-between` 底栏暂保持本地写法。
 - **守卫棘轮标记必须附带同行理由**：`scripts/check-ui-contract.mjs` 对卡片外手抄 `min-h-[3.75rem]` / `min-h-15` 发出警告（防手抄 `SettingsRow`），确属不同形状需豁免时必须在同一行写明原因（`/* ui-allow-shape: 具体原因 */`，空标记本身报错）；对宿主页面新增裸 `animate-spin` 直接硬性报错（存量锁定在 `scripts/ui-spin-baseline.json`，新增必须走四级加载阶梯）。

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // SettingsSection — a titled group of settings rows: a small muted title over
 // a rounded bg-card shell. Lifted from the host app's settings owner
-// vocabulary (apps/web/components/settings/section.vue, now a re-export
-// shim) so the section card has exactly one implementation.
+// vocabulary (formerly apps/web/components/settings/section.vue) so the
+// section card has exactly one implementation.
 //
 // The card owns two things for everything placed in it: the horizontal
 // content inset (--settings-inset) and, being a settings list, the row rhythm

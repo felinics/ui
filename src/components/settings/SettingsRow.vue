@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 // SettingsRow — one settings row: label (+ optional description) left,
 // trailing control right. Lifted from the host app's settings owner vocabulary
-// (apps/web/components/settings/row.vue, now a re-export shim) so any surface —
+// (formerly apps/web/components/settings/row.vue) so any surface —
 // host pages, the showcase's control board — composes the same row instead of
 // transcribing its geometry.
 //

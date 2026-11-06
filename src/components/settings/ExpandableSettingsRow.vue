@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 // Lifted from the host app's settings owner vocabulary
-// (apps/web/components/settings/expandable-row.vue, now a re-export shim) so
+// (formerly apps/web/components/settings/expandable-row.vue) so
 // the collapsible settings row has exactly one implementation. Exported as
 // ExpandableSettingsRow (the host file was expandable-row.vue) to name the
 // settings-row family explicitly in the library's flat export namespace.

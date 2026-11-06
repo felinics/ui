@@ -3,10 +3,14 @@ import { Settings } from 'lucide-vue-next'
 import SettingsBleed from './SettingsBleed.vue'
 
 // ModelListRow — the dense model-list navigation row: the whole row is the
-// click target. Lifted from the host (apps/web/components/settings/
-// model-list-row.vue, now a re-export shim) so the shape has exactly one
-// implementation. Token adaptation only: text-sm→text-control,
-// text-xs→text-body.
+// click target. Lifted from the host (formerly apps/web/components/settings/
+// model-list-row.vue) so the shape has exactly one implementation. Token
+// adaptation only: text-sm→text-control, text-xs→text-body.
+//
+// Card-only: the button bleeds out by --settings-inset to reach the card's
+// edges, which assumes a SettingsSection card supplied that inset. In a
+// SettingsList inside a dialog body nothing pads the row, so the bleed would
+// overflow the body by 16px on each side.
 withDefaults(defineProps<{
   label: string
   meta?: string
@@ -20,7 +24,7 @@ withDefaults(defineProps<{
   readonly: false,
 })
 
-// Multi-root template (button + sibling divider) disables Vue's automatic
+// Multi-root template (bleed wrapper + sibling divider) disables Vue's automatic
 // attrs/listener fallthrough, so a plain @click on the component would be
 // silently dropped — the row emits its own 'click' explicitly instead.
 const emit = defineEmits<{ click: [] }>()
