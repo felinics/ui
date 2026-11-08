@@ -209,7 +209,7 @@
 ## 动效、菜单对齐与框架版本注意项
 
 - **Tailwind v4 独立变换属性**：Tailwind v4 将 `translate-*`、`scale-*`、`rotate-*` 编译为独立的 CSS 属性 `translate` / `scale` / `rotate`，写 `transition: transform` 不会产生过渡动画（会直接跳帧），必须过渡实际属性（如 `transition: translate`）。
-- **动效时长档位**：输入框边线约 `70ms` · 开关滑块 `110ms`（轨道变色与滑块位移必须同速）· 按钮变色 `150ms` · 切换按钮按下 `40ms` / 松开 `160ms` · 手风琴展开 `180ms` · `AutoHeight` 高度过渡与滚动边缘渐隐 `200–220ms` · 分段滑块 `250ms` · 按钮按压弹簧回弹 `255ms`。
+- **动效时长档位**：输入框边线约 `70ms` · 开关滑块 `110ms`（轨道变色与滑块位移必须同速）· 按钮变色 `150ms` · 切换按钮按下 `40ms` / 松开 `160ms` · 菜单与 `Select` 弹层打开 `150ms`（`ease-out-expo`，首帧即明显可见）/ 关闭 `120ms`（默认缓动，按下即开始淡出，不用先停后收的 ease-in 离场）· 手风琴展开 `180ms` · `AutoHeight` 高度过渡与滚动边缘渐隐 `200–220ms` · 分段滑块 `250ms` · 按钮按压弹簧回弹 `255ms`。
 - **嵌套子菜单对齐与菜单前导图标**：
   - `DropdownMenuSubContent` 与 `ContextMenuSubContent` 通过 `useSubmenuAlignment` 默认将子菜单首项的垂直中心对齐父触发项中心（适应字号缩放，空间不足时仍由 Reka 处理翻转防溢出），调用方不加偏移修正。
   - 菜单项前导图标的尺寸与间距由菜单组件统一接管，调用方直接传入图标组件，不加 `mr-*`、`ml-*` 或尺寸修正类。根级 `ContextMenu` 在光标处采用淡入缩放动画，不用方向滑入。
