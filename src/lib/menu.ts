@@ -15,8 +15,17 @@ export const menuContentClass
 
 // Shared trigger-anchored motion. Content wrappers supply their Reka transform
 // origin; Presence keeps the closed panel mounted through its exit animation.
+// Open and close use deliberately different curves. Open runs on ease-out-expo so
+// the panel is already clearly visible on its first frame and settles within
+// ~45ms; the default `ease` starts slowly and made opening feel late. Close keeps
+// the default curve because it starts fading at once: an ease-in exit holds the
+// panel nearly still for most of its duration, which reads as the picked item not
+// having registered.
+// motion-reduce needs `!`: the data-[state] animate-in/out rules carry an extra
+// attribute selector, so a plain `motion-reduce:animate-none` loses on specificity
+// and reduced-motion users still got the zoom.
 export const menuAnchoredMotionClass
-  = 'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-100 data-[state=closed]:duration-120 transition-none motion-reduce:animate-none'
+  = 'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-150 data-[state=open]:ease-out-expo data-[state=closed]:duration-120 transition-none motion-reduce:animate-none!'
 
 // Opt-in directional slide: a 1-unit drift in *from the trigger side*. Add it to
 // trigger-anchored surfaces (Dropdown/Select content, every sub-content) so the

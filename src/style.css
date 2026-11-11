@@ -2047,6 +2047,10 @@
   --radius-menu: calc(var(--radius) - 2px);
   --radius-menu-shell: calc(var(--radius) + 2px);
 
+  /* Exponential ease-out: moves at once, then settles long and soft. Used where
+     an appearing surface must read as an immediate response (menu open). */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
   /* Accordion open/close — height tween driven by reka's measured content height.
      Kept short (matches the menu/fast-motion budget) so sections feel snappy. */
   --animate-accordion-down: accordion-down 0.18s ease-out;
