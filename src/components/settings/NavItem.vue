@@ -21,14 +21,14 @@ withDefaults(defineProps<{
 // settings nav (grandfathered in its baseline there) — NavItem is now the
 // single home for this ink. (Marker repeated inline: the guard ratchets
 // alpha per raw line.)
-const rowClass = 'w-full justify-start gap-2.5 pl-3.5! pr-3! font-[430] tracking-[-0.1px] text-foreground/85 [--btn-ghost-hover:var(--sidebar-hover)]' /* ui-allow-alpha */
+const rowClass = 'w-full justify-start gap-2.5 pl-3.5! pr-3! tracking-[-0.1px] text-foreground/85 [--btn-ghost-hover:var(--sidebar-hover)]' /* ui-allow-alpha */
 </script>
 
 <template>
   <Button
     data-settings-nav-item
     variant="ghost"
-    :class="[rowClass, active && 'bg-sidebar-accent text-foreground!']"
+    :class="[rowClass, active ? 'bg-sidebar-accent font-medium text-foreground!' : 'font-[430]']"
   >
     <slot />
   </Button>

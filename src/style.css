@@ -1101,6 +1101,7 @@
 }
 
 :root, [data-color-scheme-preview="memoh"] {
+  color-scheme: light;
   --select-fade-midpoint: rgb(0 0 0 / 0.4); /* Mask alpha, independent of theme. */
   /* Nine 34px rows and eight 2px gaps, scaling with the root font. */
   --menu-frame-spacing: 0.25rem;
@@ -1543,6 +1544,7 @@
 }
 
 .dark, .dark [data-color-scheme-preview="memoh"] {
+  color-scheme: dark;
   --background: oklch(0.12212 0 0);
   --foreground: oklch(0.90 0 0);
   --card: oklch(0.21 0 0);
