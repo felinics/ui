@@ -10,10 +10,11 @@ const props = defineProps<SkeletonProps>()
 </script>
 
 <template>
-  <!-- bg-muted is the reduced-motion / fallback base; the sliding two-gray shimmer
-       gradient is driven by the [data-slot=skeleton] rule in style.css. -->
+  <!-- bg-skeleton is the zero-chroma translucent resting fill (also the reduced-motion
+       fallback); the sliding translucent shimmer seam is driven by [data-slot=skeleton]
+       in style.css so both layers composite cleanly over neutral or tinted surfaces. -->
   <div
     data-slot="skeleton"
-    :class="cn('rounded-lg bg-muted', props.class)"
+    :class="cn('rounded-lg bg-skeleton', props.class)"
   />
 </template>

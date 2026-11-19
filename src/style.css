@@ -697,14 +697,14 @@
   }
 }
 
-/* Skeleton loading shimmer — a soft two-gray seam drifts left→right. The gradient is
-   one repeating tile (--skeleton-tile wide) marching across a VIEWPORT-anchored sheet
-   (background-attachment:fixed), so every skeleton block — wherever it sits — samples
-   the SAME light by its own position: a cluster (avatar + lines) reads as one surface
-   crossed by a single seam, never independent per-block pulses (the "one paper, many
-   windows" model). The tile is narrower than a typical row, so a fresh seam revisits
-   the group every cycle — a short gap, not a viewport-wide wait. Animating by exactly
-   one tile width loops seamlessly. Two CLOSE grays keep it a gentle seam, not a band. */
+/* Skeleton loading shimmer — a soft zero-chroma translucent seam drifts left→right.
+   The gradient is one repeating tile (--skeleton-tile wide) marching across a
+   VIEWPORT-anchored sheet (background-attachment:fixed), so every skeleton block —
+   wherever it sits — samples the SAME light by its own position: a cluster (avatar +
+   lines) reads as one surface crossed by a single seam, never independent per-block
+   pulses (the "one paper, many windows" model). Because the gradient stops fade from
+   transparent through the neutral alpha --skeleton-shimmer and back to transparent,
+   the seam composites over any base fill or tinted surface without stamping gray. */
 @keyframes skeleton-shimmer {
   to {
     background-position-x: var(--skeleton-tile);
@@ -785,9 +785,9 @@
   [data-slot="skeleton"] {
     background-image: linear-gradient(
       100deg,
-      var(--muted) 40%,
-      var(--skeleton-mid) 50%,
-      var(--muted) 60%
+      transparent 40%,
+      var(--skeleton-shimmer) 50%,
+      transparent 60%
     );
     background-attachment: fixed;
     background-repeat: repeat;
@@ -1164,9 +1164,12 @@
      output), and a single declaration here already tracks --muted's .dark /
      per-scheme overrides at use-time, so it needs no redeclaration below. */
   --muted-soft: color-mix(in oklab, var(--muted) 40%, transparent);
-  /* Skeleton shimmer mid-stop — one hair DARKER than --muted (0.967) so the sliding
-     seam is a calm shadow, not a bright flash, on the light gray block. */
-  --skeleton-mid: oklch(0.93 0.002 286);
+  /* Skeleton base + shimmer — zero-chroma neutral overlays (black in light, white
+     in dark) so both the resting block and the drifting seam composite over any
+     surface (neutral or tinted) instead of stamping opaque gray or losing scheme hue.
+     Light: 4.5% base (~244 on white card, matching --muted 245) + 4.5% peak (~233). */
+  --skeleton-bg: oklch(0 0 0 / 0.045);
+  --skeleton-shimmer: oklch(0 0 0 / 0.045);
   /* Shimmer tile width — narrower than a typical skeleton row so a fresh seam revisits
      each cluster every cycle (short gap). Bigger = longer gap; smaller = denser. */
   --skeleton-tile: 640px;
@@ -1558,9 +1561,10 @@
   --secondary-foreground: oklch(0.86 0 0);
   --muted: oklch(0.26 0 0);
   --muted-foreground: oklch(0.70 0 0);
-  /* On dark, the mid-stop is one hair LIGHTER than --muted (0.26) — a gentle lift,
-     never a glaring white sweep. */
-  --skeleton-mid: oklch(0.315 0 0);
+  /* On dark, neutral white overlays gently lift the underlying surface (7.5% base +
+     6% shimmer peak) without painting tinted surfaces dead gray. */
+  --skeleton-bg: oklch(1 0 0 / 0.075);
+  --skeleton-shimmer: oklch(1 0 0 / 0.06);
   --accent: oklch(0.26 0 0);
   --accent-foreground: oklch(0.86 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -2022,6 +2026,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted-soft: var(--muted-soft);
+  --color-skeleton: var(--skeleton-bg);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
