@@ -34,7 +34,7 @@
     :data-clickable="clickable ? '' : undefined"
     class="flex text-left"
     :class="[
-      size === 'sm' ? 'gap-2' : 'gap-3',
+      size === 'sm' ? 'gap-2' : 'gap-3 sm:gap-5',
       bare ? '' : [frameClass, toneClass],
       clickable ? [interactiveClass, 'flex-row items-center'] : 'flex-col sm:flex-row sm:items-center',
     ]"
@@ -42,22 +42,18 @@
     <!-- Two sizes, two designs — not one geometry scaled:
          - sm: the dense notice (chat transcript, composer, dialogs). Hairline
            tone border + faint wash, 14px glyph, 13px first line.
-         - default: the page-level banner. No border — one solid tone fill,
-           like a borderless dark card — one step up from sm on every rung
-           (16px glyph, 14px title, 13px body) so it reads as a section of the
-           page without outgrowing the 13–14px type the rest of the UI runs on. -->
+         - default: the page-level banner (Memoh 2.0 Direction A). Opaque bg-card
+           surface (hairline border in light mode, borderless in dark mode to
+           match PlanCard / SurfaceCard), optional inline `r=6` semantic tag next
+           to the title instead of a leading icon, 14px title, 13px body. Legacy
+           callers that have not supplied `tag` keep the leading icon fallback so
+           tone never disappears silently. -->
     <div
       class="flex min-w-0 flex-1 items-start"
       :class="size === 'sm' ? 'gap-2' : 'gap-2.5'"
     >
-      <!-- Optical drop, only when the body runs past one line (title +
-           description). The glyph is centered on the first line box; with one
-           line that already reads centered. Under a second line the eye reads
-           the block's center line as tilting down from the icon toward the
-           text, so the icon is nudged ~0.4px to meet it. A transform, so the
-           line box and row height are untouched. Wrapping of a lone
-           description is not detected — that case stays geometric. -->
       <span
+        v-if="showLeadingIcon"
         class="flex h-lh shrink-0 items-center"
         :class="[firstLineRung, iconClass, title && description ? 'translate-y-[0.025rem]' : '']"
         aria-hidden="true"
@@ -70,17 +66,30 @@
         </slot>
       </span>
       <div class="min-w-0 flex-1">
-        <p
-          v-if="title"
-          class="break-words font-medium text-foreground"
-          :class="firstLineRung"
+        <div
+          v-if="title || tag"
+          class="flex flex-wrap items-center gap-2"
         >
-          {{ title }}
-        </p>
+          <p
+            v-if="title"
+            class="break-words font-medium text-foreground"
+            :class="firstLineRung"
+          >
+            {{ title }}
+          </p>
+          <span
+            v-if="tag"
+            data-slot="callout-banner-tag"
+            class="inline-flex shrink-0 items-center rounded-sm px-[0.4375rem] py-0.5 text-caption font-medium"
+            :class="tagClass"
+          >
+            {{ tag }}
+          </span>
+        </div>
         <p
           v-if="description"
           class="whitespace-pre-wrap break-words"
-          :class="title ? ['mt-0.5 text-muted-foreground', size === 'sm' ? 'text-body' : 'text-label'] : [firstLineRung, 'text-foreground']"
+          :class="title || tag ? ['mt-1 text-muted-foreground', size === 'sm' ? 'text-body' : 'text-label'] : [firstLineRung, 'text-foreground']"
         >
           {{ description }}
         </p>
@@ -136,12 +145,13 @@
 // have one notice owner instead of two with different edges and icon math.
 import { ErrorIcon } from '@memohai/icon/ui'
 import { ChevronRight, Info, TriangleAlert, X } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, useSlots } from 'vue'
 import { Button } from '#/components/button'
 
 const props = withDefaults(defineProps<{
   tone?: 'neutral' | 'warning' | 'destructive'
   title?: string
+  tag?: string
   description?: string
   size?: 'default' | 'sm'
   bare?: boolean
@@ -150,12 +160,15 @@ const props = withDefaults(defineProps<{
 }>(), {
   tone: 'warning',
   title: '',
+  tag: '',
   description: '',
   size: 'default',
   bare: false,
   clickable: false,
   dismissLabel: '',
 })
+
+const slots = useSlots()
 
 const emit = defineEmits<{
   (e: 'dismiss'): void
@@ -167,43 +180,49 @@ const toneIcon = computed(() => ({
   destructive: ErrorIcon,
 })[props.tone])
 
+// Direction A removes the leading icon whenever the semantic tag carries the
+// tone (unless a caller explicitly supplies a custom `#icon` slot).
+const showLeadingIcon = computed(() => Boolean(slots.icon) || !props.tag)
+
 // The first line is the title if present, otherwise the promoted description;
 // the icon box borrows the same rung so `h-lh` resolves to that line box.
 const firstLineRung = computed(() => props.size === 'sm' ? 'text-label' : 'text-control')
 
 const frameClass = computed(() => props.size === 'sm'
   ? 'rounded-menu-shell border px-3 py-2'
-  : 'rounded-xl px-4 py-3')
+  : 'rounded-menu-shell border border-border bg-card px-5 py-4 dark:border-0')
 
 // Full literal class strings per tone — Tailwind scans source text, so a runtime
-// concat would never be generated. Clickable hover uses the *-soft-hover tokens
-// (utilities layer) so the wash is visible and stays in the same tone family.
-// sm: hairline border + faint wash. default: no border, one solid fill that
-// must read without an edge. Destructive/neutral step one rung deeper
-// (*-soft-hover / muted) because their soft rung is a near-invisible 5–40%
-// mix; warning's soft rung is already an opaque-ish tint and its hover rung
-// reads as a saturated block, so it stays on warning-soft. Clickable
-// destructive/neutral deepen by brightness since there is no rung above.
+// concat would never be generated.
+// - sm: hairline tone border + faint wash.
+// - default: neutral opaque card surface (`bg-card`, border in light, borderless
+//   in dark) so dot-matrix / page backdrops never bleed through a translucent wash.
 const toneClass = computed(() => {
   const sm = props.size === 'sm'
+  if (!sm) {
+    return props.clickable ? 'transition-colors hover:bg-muted' : ''
+  }
   if (props.tone === 'destructive') {
-    if (!sm) return props.clickable ? 'bg-destructive-soft-hover transition-[filter] hover:brightness-125' : 'bg-destructive-soft-hover'
     const rest = 'border-destructive-border bg-destructive-soft'
     return props.clickable
       ? `${rest} transition-colors hover:bg-destructive-soft-hover hover:border-destructive-border-hover`
       : rest
   }
   if (props.tone === 'neutral') {
-    if (!sm) return props.clickable ? 'bg-muted transition-[filter] hover:brightness-125' : 'bg-muted'
     const rest = 'border-border bg-muted-soft'
     return props.clickable ? `${rest} transition-colors hover:bg-muted` : rest
   }
-  if (!sm) return props.clickable ? 'bg-warning-soft transition-colors hover:bg-warning-soft-hover' : 'bg-warning-soft'
   const rest = 'border-warning-border bg-warning-soft'
   return props.clickable
     ? `${rest} transition-colors hover:bg-warning-soft-hover hover:border-warning-border-hover`
     : rest
 })
+
+const tagClass = computed(() => ({
+  neutral: 'bg-secondary text-muted-foreground',
+  warning: 'bg-accent-yellow-soft-hover text-accent-yellow',
+  destructive: 'bg-accent-red-soft-hover text-accent-red',
+})[props.tone])
 
 const iconClass = computed(() => ({
   neutral: 'text-muted-foreground',

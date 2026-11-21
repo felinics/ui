@@ -11,6 +11,8 @@ export type ToastVariant = 'message' | 'success' | 'error' | 'info' | 'warning'
 export interface ToastAction {
   label: string
   onClick: () => void
+  /** Whether clicking the action dismisses this toast. Defaults to `true`. */
+  dismissOnClick?: boolean
 }
 
 export interface ToastTextAction {

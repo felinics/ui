@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
               variant="outline"
               size="sm"
               class="memoh-toast__action"
-              @click="() => { t.action!.onClick(); dismiss(t.id) }"
+              @click="() => { t.action!.onClick(); if (t.action!.dismissOnClick !== false) dismiss(t.id) }"
             >
               {{ t.action.label }}
             </Button>
@@ -205,7 +205,7 @@ onBeforeUnmount(() => {
                 variant="outline"
                 size="sm"
                 class="memoh-toast__action"
-                @click="() => { t.action!.onClick(); dismiss(t.id) }"
+                @click="() => { t.action!.onClick(); if (t.action!.dismissOnClick !== false) dismiss(t.id) }"
               >
                 {{ t.action.label }}
               </Button>
